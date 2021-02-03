@@ -34,16 +34,16 @@ export const play = username => {
   socket.emit(Constants.MSG_TYPES.JOIN_GAME, username);
 };
 
-export const updateDirection = throttle(20, dir => {
-  socket.emit(Constants.MSG_TYPES.INPUT_DIRECTION, dir);
+export const updateFireDirection = throttle(20, dir => {
+  socket.emit(Constants.MSG_TYPES.INPUT_FIREDIRECTION, dir);
 });
 
 export const updateFire = throttle(20, start => {
   socket.emit(Constants.MSG_TYPES.INPUT_FIRE, start);
 });
 
-export const updateMove = throttle(20, dir => {
-  socket.emit(Constants.MSG_TYPES.INPUT_MOVE, dir);
+export const updateMoveDirection = throttle(20, dir => {
+  socket.emit(Constants.MSG_TYPES.INPUT_MOVEDIRECTION, dir);
 });
 
 export const updateToggle = throttle(20, tog => {

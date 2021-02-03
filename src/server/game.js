@@ -65,13 +65,13 @@ class Game {
     }
   }
 
-  handleInputDir(socket, dir) {
+  handleInputFireDirection(socket, dir) {
     if (this.players[socket.id]) {
-      this.players[socket.id].setDirection(dir);
+      this.players[socket.id].setFireDirection(dir);
     }
   }
 
-  handleInputMove(socket, dir) {
+  handleInputMoveDirection(socket, dir) {
     if (this.players[socket.id]) {
       this.players[socket.id].setMoveDirection(dir);
     }

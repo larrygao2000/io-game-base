@@ -133,6 +133,10 @@ class Player extends ObjectClass {
     this.move = dir;
   }
 
+  setFireDirection(dir) {
+    super.setDirection(dir);
+  }
+
   toggle(tog) {
     if (tog == 'e') {
       this.autofire = ! this.autofire;

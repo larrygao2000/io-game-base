@@ -34,8 +34,8 @@ io.on('connection', socket => {
 
   socket.on(Constants.MSG_TYPES.JOIN_GAME, joinGame);
   socket.on(Constants.MSG_TYPES.INPUT_FIRE, handleInputFire);
-  socket.on(Constants.MSG_TYPES.INPUT_DIRECTION, handleInputDir);
-  socket.on(Constants.MSG_TYPES.INPUT_MOVE, handleInputMove);
+  socket.on(Constants.MSG_TYPES.INPUT_FIREDIRECTION, handleInputFireDirection);
+  socket.on(Constants.MSG_TYPES.INPUT_MOVEDIRECTION, handleInputMoveDirection);
   socket.on(Constants.MSG_TYPES.INPUT_TOGGLE, handleInputToggle);
   socket.on(Constants.MSG_TYPES.UPDATE_CANVAS_SIZE, handleCanvasSize);
   socket.on('disconnect', onDisconnect);
@@ -56,16 +56,16 @@ function handleInputFire(start) {
   game.handleInputFire(this, start);
 }
 
-function handleInputDir(dir) {
-  game.handleInputDir(this, dir);
+function handleInputFireDirection(dir) {
+  game.handleInputFireDirection(this, dir);
 }
 
 function handleInputToggle(tog) {
   game.handleInputToggle(this, tog);
 }
 
-function handleInputMove(dir) {
-  game.handleInputMove(this, dir);
+function handleInputMoveDirection(dir) {
+  game.handleInputMoveDirection(this, dir);
 }
 
 function onDisconnect() {

@@ -1,8 +1,8 @@
 // Learn more about this file at:
 // https://victorzhou.com/blog/build-an-io-game-part-1/#6-client-input-%EF%B8%8F
-import { updateDirection } from './networking';
+import { updateFireDirection } from './networking';
 import { updateFire } from './networking';
-import { updateMove } from './networking';
+import { updateMoveDirection } from './networking';
 import { updateToggle } from './networking';
 
 let lastFireTime=(new Date()).getTime();
@@ -21,7 +21,7 @@ function onMouseClick(e) {
 }
 
 function onMouseMove(e) {
-  handleDir(e.clientX, e.clientY);
+  handleFireDirection(e.clientX, e.clientY);
 }
 
 function onTouchInput(e) {
@@ -100,12 +100,12 @@ function handleKeyChangeMove() {
   } else if (u) dir = 3; // up
   else if (d) dir = 7; // down;
 
-  updateMove(dir);
+  updateMoveDirection(dir);
 }
 
-function handleDir(x, y) {
+function handleFireDirection(x, y) {
   const dir = Math.atan2(x - window.innerWidth / 2, window.innerHeight / 2 - y);
-  updateDirection(dir);
+  updateFireDirection(dir);
 }
 
 function onLostFocus() {
@@ -115,7 +115,7 @@ function onLostFocus() {
     keydownMap['ArrowRight'] || keydownMap['KeyS'] ||
     keydownMap['ArrowDown'] || keydownMap['KeyZ']) {
 
-    updateMove(0);
+    updateMoveDirection(0);
   }
   keydownMap={};
 }
