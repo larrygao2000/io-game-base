@@ -93,6 +93,21 @@ class Player extends ObjectClass {
       this.takeCollisionDamage();
       obj.takeCollisionDamage();
 
+      // bounce the players back
+      if (this.x != obj.x || this.y != obj.y) {
+        const dir = Math.atan2(this.x - obj.x, obj.y - this.y);
+        const x = Constants.PLAYER_RADIUS * Math.sin(dir);
+        const y = Constants.PLAYER_RADIUS * Math.cos(dir);
+
+        // this is called from applyCollision which depends on collision map
+        // so we just set to new position -- collision mapX/mapY will be updated in next update(dt) call
+        this.x = Math.max(0, Math.min(Constants.MAP_SIZE, this.x + x));
+        this.y = Math.max(0, Math.min(Constants.MAP_SIZE, this.y + y));
+
+        obj.x = Math.max(0, Math.min(Constants.MAP_SIZE, obj.x - x));
+        obj.y = Math.max(0, Math.min(Constants.MAP_SIZE, obj.y - y));
+      }
+
       return 0
     }
 
@@ -150,7 +165,8 @@ class Player extends ObjectClass {
 
   takeCollisionDamage() {
     if (this.collisionCooldown < 0) {
-      this.takeBulletDamage();
+      if (this.shieldTime < 0)
+        this.hp -= Constants.COLLISION_DAMAGE;
       this.collisionCooldown = Constants.PLAYER_COLLISION_COOLDOWN;
     }
   }

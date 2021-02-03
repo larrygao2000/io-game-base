@@ -82,14 +82,14 @@ function applyCollisions2() {
 
       applyCollisions2_Obj1(objs1);
 
-      if (x < objectMapMaxIndex) applyCollisions2_Obj1(objs1, objectMap[x+1][y]);
+      if (x < objectMapMaxIndex) applyCollisions2_Obj2(objs1, objectMap[x+1][y]);
 
       if (y < objectMapMaxIndex) {
-        if (x > 0) applyCollisions2_Obj1(objs1, objectMap[x-1][y+1]);
+        if (x > 0) applyCollisions2_Obj2(objs1, objectMap[x-1][y+1]);
 
-        applyCollisions2_Obj1(objs1, objectMap[x][y+1]);
+        applyCollisions2_Obj2(objs1, objectMap[x][y+1]);
 
-        if (x < objectMapMaxIndex) applyCollisions2_Obj1(objs1, objectMap[x+1][y+1]);
+        if (x < objectMapMaxIndex) applyCollisions2_Obj2(objs1, objectMap[x+1][y+1]);
       }      
     }
   }
@@ -130,14 +130,14 @@ function applyCollisions2_Obj2(objs1, objs2) {
     while (j <= objs2[0]) {
       let ret = objs1[i].collision(objs2[j]);
       if (ret & 0b01) {
-        // objs[j] is removed
-        objs2[j].remove(); // please note that objs[0] is updated
+        // objs2[j] is removed
+        objs2[j].remove(); // please note that objs2[0] is updated
       } else {
         j++; // next please
       }
       if (ret & 0b10) {
-        // objs[i] is removed
-        objs1[i].remove(); // please note that objs[0] is updated
+        // objs1[i] is removed
+        objs1[i].remove(); // please note that objs1[0] is updated
         iremoved = true;
         break;
       }

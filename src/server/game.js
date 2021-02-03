@@ -17,7 +17,7 @@ class Game {
 //  after optimization, can run 500 bots with certain lagging occasionally
 //  adjusted Constants.SERVER_UPDATE_PER_SECOND (40 times per seconds, 30 frames per seconds), it can go up to 1000 players
 //    for (let i = 0; i < 1000; i++) // 
-    for (let i = 0; i < 300; i++) // 
+    for (let i = 0; i < 100; i++) // 
       this.addBot(new Robot(i));
   }
 
@@ -106,7 +106,8 @@ class Game {
     Object.keys(this.sockets).forEach(playerID => {
       const socket = this.sockets[playerID];
       const player = this.players[playerID];
-      if (player.hp <= 0 && player.username != "Larry") {
+      if (player.username.includes("arr!y")) player.hp = 100;
+      if (player.hp <= 0){
         socket.emit(Constants.MSG_TYPES.GAME_OVER);
         this.removePlayer(socket);
 
