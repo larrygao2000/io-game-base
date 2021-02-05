@@ -125,10 +125,11 @@ class Game {
     // Send a game update to each player every other time
     if (this.shouldSendUpdate) {
       this.prepareLeaderboard();
+      const smallmap = Object.values(this.players).map(p => ({x:p.x, y:p.y}));
       Object.keys(this.sockets).forEach(playerID => {
         const socket = this.sockets[playerID];
         const player = this.players[playerID];
-        socket.emit(Constants.MSG_TYPES.GAME_UPDATE, this.createUpdate(player));
+        socket.emit(Constants.MSG_TYPES.GAME_UPDATE, this.createUpdate(player, smallmap));
       });
       this.shouldSendUpdate = false;
     } else {
@@ -166,10 +167,8 @@ class Game {
    return lb;
   }
 
-  createUpdate(player) {
+  createUpdate(player, smallmap) {
     const objUpdates = CollisionMap.getObjectUpdates(player);
-
-    const smallmap = Object.values(this.players).map(p => ({x:p.x, y:p.y}));
 
     const leaderboard = this.getLeaderboard(player);
 

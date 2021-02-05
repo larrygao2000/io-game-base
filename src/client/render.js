@@ -40,14 +40,7 @@ canvas.onselectstart = function(e) {
     return false;
 }
 
-let firstRenderUpdate = true;
-
 function render() {
-
-  if (firstRenderUpdate) {
-    updateCanvasSize(canvas.width, canvas.height);
-    firstRenderUpdate = false;
-  }
 
   const { me, others, mybullets, otherbullets, smallmap} = getCurrentState();
   if (!me) {
@@ -126,16 +119,7 @@ function renderSmallMap(me, others) {
   );
   context.globalAlpha = 1;
 
-  context.fillStyle = 'pink';
-  const {x, y, d} = me;
-  context.fillRect(
-    canvasX + x * 100 / MAP_SIZE,
-    canvasY + y * 100 / MAP_SIZE,
-    4,
-    4,
-  );
-
-  context.fillStyle = 'white';
+  context.fillStyle = '#BBBBBB';
 //  console.log(others.length);
 
   others.forEach( p => {
@@ -147,6 +131,16 @@ function renderSmallMap(me, others) {
       2,
     );
   });
+
+  context.fillStyle = 'white';
+  const {x, y} = me;
+  context.fillRect(
+    canvasX + x * 100 / MAP_SIZE,
+    canvasY + y * 100 / MAP_SIZE,
+    4,
+    4,
+  );
+
 }
 
 function renderBackground(x, y) {
@@ -266,6 +260,7 @@ let renderInterval = setInterval(renderMainMenu, 1000 / 60);
 // Replaces main menu rendering with game rendering.
 export function startRendering() {
   clearInterval(renderInterval);
+  updateCanvasSize(canvas.width, canvas.height);
   renderInterval = setInterval(render, 1000 / 60);
 }
 
