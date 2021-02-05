@@ -10,7 +10,7 @@ class Game {
     this.leaderboard = [];
     this.lastUpdateTime = Date.now();
     this.shouldSendUpdate = false;
-    setInterval(this.update.bind(this), 1000 / 60);
+    setInterval(this.update.bind(this), 1000 / Constants.SERVER_UPDATE_PER_SECOND);
 
     CollisionMap.init();
 

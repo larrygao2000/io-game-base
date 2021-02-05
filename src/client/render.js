@@ -7,7 +7,7 @@ import { updateCanvasSize } from './networking';
 
 const Constants = require('../shared/constants');
 
-const { PLAYER_RADIUS, PLAYER_MAX_HP, BULLET_RADIUS, MAP_SIZE, MAP_GRID_SIZE, SMAP_SIZE } = Constants;
+const { PLAYER_RADIUS, PLAYER_MAX_HP, BULLET_RADIUS, MAP_SIZE, MAP_GRID_SIZE, SMAP_SIZE, CLIENT_UPDATE_PER_SECOND } = Constants;
 
 // Get the canvas graphics context
 const canvas = document.getElementById('game-canvas');
@@ -255,17 +255,17 @@ function renderMainMenu() {
   renderBackground(x, y);
 }
 
-let renderInterval = setInterval(renderMainMenu, 1000 / 60);
+let renderInterval = setInterval(renderMainMenu, 1000 / CLIENT_UPDATE_PER_SECOND);
 
 // Replaces main menu rendering with game rendering.
 export function startRendering() {
   clearInterval(renderInterval);
   updateCanvasSize(canvas.width, canvas.height);
-  renderInterval = setInterval(render, 1000 / 60);
+  renderInterval = setInterval(render, 1000 / CLIENT_UPDATE_PER_SECOND);
 }
 
 // Replaces game rendering with main menu rendering.
 export function stopRendering() {
   clearInterval(renderInterval);
-  renderInterval = setInterval(renderMainMenu, 1000 / 60);
+  renderInterval = setInterval(renderMainMenu, 1000 / CLIENT_UPDATE_PER_SECOND);
 }
