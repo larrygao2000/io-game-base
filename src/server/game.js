@@ -9,21 +9,15 @@ class Game {
     this.players = {};
     this.leaderboard = [];
     this.lastUpdateTime = Date.now();
-    this.shouldSendUpdate = false;
+    this.shouldSendUpdate = 0;
     setInterval(this.update.bind(this), 1000 / Constants.SERVER_UPDATE_PER_SECOND);
 
     CollisionMap.init();
 
-//    Before optimization
-//    for (let i = 0; i < 500; i++) // would not start with collision
-//    for (let i = 0; i < 300; i++) // would not start with collision
-//    for (let i = 0; i < 200; i++) // can start after 1 min, very slow, unable to control at all
-//    for (let i = 0; i < 150; i++) // can start after half min, very lagging, control is very lagging and unable to play
-//    for (let i = 0; i < 100; i++) // normal performance on puma01
-//    for (let i = 0; i < 250; i++) // lagging even without collision detection. // need a better way to handle other parts as well
-
 //  after optimization, can run 500 bots with certain lagging occasionally
-    for (let i = 0; i < 400; i++) // normal performance on puma01
+//  adjusted Constants.SERVER_UPDATE_PER_SECOND (40 times per seconds, 30 frames per seconds), it can go up to 1000 players
+//    for (let i = 0; i < 1000; i++) // 
+    for (let i = 0; i < 500; i++) // 
       this.addBot(new Robot(i));
   }
 
@@ -122,8 +116,8 @@ class Game {
       }
     });
 
-    // Send a game update to each player every other time
-    if (this.shouldSendUpdate) {
+    // Send a game update 3 times for every 4 rounds
+    if (this.shouldSendUpdate < 3) {
       this.prepareLeaderboard();
       const smallmap = Object.values(this.players).map(p => ({x:p.x, y:p.y}));
       Object.keys(this.sockets).forEach(playerID => {
@@ -131,9 +125,10 @@ class Game {
         const player = this.players[playerID];
         socket.emit(Constants.MSG_TYPES.GAME_UPDATE, this.createUpdate(player, smallmap));
       });
-      this.shouldSendUpdate = false;
-    } else {
-      this.shouldSendUpdate = true;
+    }
+    this.shouldSendUpdate ++;
+    if (this.shouldSendUpdate >= 4) {
+      this.shouldSendUpdate = 0;
     }
   }
 
