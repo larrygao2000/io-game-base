@@ -26,18 +26,30 @@ class Robot {
   emit(event, context) {
     const d = (new Date()).getTime();
 
-     if (d - this.directionTime > 100) {
-         if (Math.random() < 0.01) this.clockwise = !this.clockwise;
-         if (this.clockwise) {
-             this.direction -= 3.1415926*2 / 100; // make a round in 10 seconds
-             if (this.direction < -3.1415926) this.direction = 3.1415926;
-         } else {
-             this.direction += 3.1415926*2 / 100; // make a round in 10 seconds
-             if (this.direction > 3.1415926) this.direction = -3.1415926;
-         }
-         this.player.direction = this.direction;
-         this.directionTime = d;
-     }
+    if (this.player.lockPlayer) {
+      if (Math.random() < 0.1) {
+        this.player.setDirection(Math.atan2(this.player.lockPlayer.x - this.player.x, this.player.y - this.player.lockPlayer.y));
+        this.player.autofire = true;
+        if (this.player.distanceTo(this.player.lockPlayer) > Constants.PLAYER_RADIUS * 20) {
+          // unlock
+          this.player.lockPlayer = null;
+        } else if (this.player.distanceTo(this.player.lockPlayer) > Constants.PLAYER_RADIUS * 3) this.player.move = this.player.lockPlayer.move;
+      }
+      return;
+    }
+
+    if (d - this.directionTime > 100) {
+       if (Math.random() < 0.01) this.clockwise = !this.clockwise;
+       if (this.clockwise) {
+           this.direction -= 3.1415926*2 / 100; // make a round in 10 seconds
+           if (this.direction < -3.1415926) this.direction = 3.1415926;
+       } else {
+           this.direction += 3.1415926*2 / 100; // make a round in 10 seconds
+           if (this.direction > 3.1415926) this.direction = -3.1415926;
+       }
+       this.player.direction = this.direction;
+       this.directionTime = d;
+    }
 
     if (event == Constants.MSG_TYPES.GAME_UPDATE && 
         // at least one sec
@@ -64,7 +76,7 @@ class Robot {
     }
 
     // tell game this bot wants to move
-    this.player.move = this.move
+    this.player.move = this.move;
 
     // 20% of bots not fire
     if (Math.random() < 0.2) this.player.toggle('e');

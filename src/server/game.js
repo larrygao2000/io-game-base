@@ -17,7 +17,7 @@ class Game {
 //  after optimization, can run 500 bots with certain lagging occasionally
 //  adjusted Constants.SERVER_UPDATE_PER_SECOND (40 times per seconds, 30 frames per seconds), it can go up to 1000 players
 //    for (let i = 0; i < 1000; i++) // 
-    for (let i = 0; i < 500; i++) // 
+    for (let i = 0; i < 300; i++) // 
       this.addBot(new Robot(i));
   }
 
