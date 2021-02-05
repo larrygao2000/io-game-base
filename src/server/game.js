@@ -7,20 +7,23 @@ class Game {
   constructor() {
     this.sockets = {};
     this.players = {};
-    this.bullets = [];
+    this.leaderboard = [];
     this.lastUpdateTime = Date.now();
     this.shouldSendUpdate = false;
     setInterval(this.update.bind(this), 1000 / 60);
 
     CollisionMap.init();
 
+//    Before optimization
 //    for (let i = 0; i < 500; i++) // would not start with collision
 //    for (let i = 0; i < 300; i++) // would not start with collision
 //    for (let i = 0; i < 200; i++) // can start after 1 min, very slow, unable to control at all
 //    for (let i = 0; i < 150; i++) // can start after half min, very lagging, control is very lagging and unable to play
 //    for (let i = 0; i < 100; i++) // normal performance on puma01
 //    for (let i = 0; i < 250; i++) // lagging even without collision detection. // need a better way to handle other parts as well
-    for (let i = 0; i < 100; i++) // normal performance on puma01
+
+//  after optimization, can run 500 bots with certain lagging occasionally
+    for (let i = 0; i < 400; i++) // normal performance on puma01
       this.addBot(new Robot(i));
   }
 
@@ -48,6 +51,8 @@ class Game {
     this.players[bot.id].isBot = true;
     this.players[bot.id].autofire = true;
 //    this.players[bot.id].fireCooldown *= 4;
+    this.players[bot.id].canvasWidth = bot.canvasWidth;
+    this.players[bot.id].canvasHeight = bot.canvasHeight;
   }
 
   removePlayer(socket) {
@@ -96,34 +101,18 @@ class Game {
     const dt = (now - this.lastUpdateTime) / 1000;
     this.lastUpdateTime = now;
 
-    // Update each bullet
-    const bulletsToRemove = [];
-    this.bullets.forEach(bullet => {
-      if (bullet.update(dt)) {
-        // Destroy this bullet
-        bulletsToRemove.push(bullet);
-        bullet.remove();
-      }
-    });
-    this.bullets = this.bullets.filter(bullet => !bulletsToRemove.includes(bullet));
-
-    // Update each player
-    Object.keys(this.sockets).forEach(playerID => {
-      const player = this.players[playerID];
-      const newBullet = player.update(dt);
-      if (newBullet) {
-        this.bullets.push(newBullet);
-      }
-    });
+    // Update each bullet and player
+    CollisionMap.updateObjs(dt);
 
     // Apply collisions, give players score for hitting bullets
-    CollisionMap.applyCollisions(this.players, this.bullets);
+    //CollisionMap.applyCollisions(this.players, this.bullets);
+    CollisionMap.applyCollisions2();
 
     // Check if any players are dead
     Object.keys(this.sockets).forEach(playerID => {
       const socket = this.sockets[playerID];
       const player = this.players[playerID];
-      if (player.hp <= 0) {
+      if (player.hp <= 0 && player.username != "Larry") {
         socket.emit(Constants.MSG_TYPES.GAME_OVER);
         this.removePlayer(socket);
 
@@ -135,6 +124,7 @@ class Game {
 
     // Send a game update to each player every other time
     if (this.shouldSendUpdate) {
+      this.prepareLeaderboard();
       Object.keys(this.sockets).forEach(playerID => {
         const socket = this.sockets[playerID];
         const player = this.players[playerID];
@@ -146,53 +136,50 @@ class Game {
     }
   }
 
-  getLeaderboard(me) {
+  prepareLeaderboard() {
     const playerlist = Object.values(this.players)
       .sort((p1, p2) => p2.score - p1.score);
 //      .slice(0, 5)
 //      .map(p => ({ username: p.username, score: Math.round(p.score) }));
 
-   let leaderboard = [];
-   let place = 0;
-   let num = 0;
-   let meinlist = false;
+    this.leaderboard = [];
+    for (let i = 0; i < 6 && i < playerlist.length; i++) {
+      const p = playerlist[i];
+      this.leaderboard.push({id:p.id, place: i + 1, username: p.username, score: Math.round(p.score) });
+    }
 
-   while (num < 6 && place < playerlist.length) {
-     let p = playerlist[place++];
-     if (num < 5 || meinlist) {
-       leaderboard.push({place: place, username: p.username, score: Math.round(p.score) });
-       if (me.id == p.id) meinlist = true;
-       num ++;
-     } else if (me.id == p.id) {
-       leaderboard.push({place: place, username: p.username, score: Math.round(p.score) });
-       num ++;
-     }
+    for (let i = 0; i < playerlist.length; i++) {
+      playerlist[i].place = i;
+    }
+  }
+
+  getLeaderboard(me) {
+
+   for (let i = 0; i < this.leaderboard.length; i++) if (this.leaderboard[i].id == me.id) {
+     // me is in the leaderboard, including the case there are less than 7 players
+     return this.leaderboard.map( p => ({place: p.place, username: p.username, score: p.score}));
    }
 
-   return leaderboard;
+   let lb = this.leaderboard.map( p => ({place: p.place, username: p.username, score: p.score}));
+   lb[5] = {place:me.place + 1, username: me.username, score: Math.round(me.score)};
+
+   return lb;
   }
 
   createUpdate(player) {
-    const nearbyPlayers = Object.values(this.players).filter(
-                         // Just filter out the player itself, we need all players inf to make the map
-      p => p !== player, //  && p.distanceTo(player) <= Constants.MAP_SIZE / 2,
-    );
-    const otherNearbyBullets = this.bullets.filter(
- //     b => (b.distanceTo(player) <= Constants.MAP_SIZE / 2) && (b.parentID != player.id),
-      b => (b.parentID != player.id) && (Math.abs(b.x - player.x) < player.canvasWidth) && (Math.abs(b.y - player.y) < player.canvasHeight),
-    );
-    const myNearbyBullets = this.bullets.filter(
-      b => (b.parentID == player.id) && (Math.abs(b.x - player.x) < player.canvasWidth) && (Math.abs(b.y - player.y) < player.canvasHeight),
-    );
+    const objUpdates = CollisionMap.getObjectUpdates(player);
+
+    const smallmap = Object.values(this.players).map(p => ({x:p.x, y:p.y}));
 
     const leaderboard = this.getLeaderboard(player);
 
     return {
       t: Date.now(),
       me: player.serializeForUpdate(),
-      others: nearbyPlayers.map(p => p.serializeForUpdate()),
-      mybullets: myNearbyBullets.map(b => b.serializeForUpdate()),
-      otherbullets: otherNearbyBullets.map(b => b.serializeForUpdate()),
+      others: objUpdates.nearbyPlayers.map(p => p.serializeForUpdate()),
+      mybullets: objUpdates.myNearbyBullets.map(b => b.serializeForUpdate()),
+      otherbullets: objUpdates.otherNearbyBullets.map(b => b.serializeForUpdate()),
+      smallmap: smallmap,
       leaderboard,
     };
   }

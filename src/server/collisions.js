@@ -77,16 +77,81 @@ function updateObject(obj) {
 function applyCollisions2() {
   for (let x = 0; x <= objectMapMaxIndex; x++) {
     for (let y = 0; y <= objectMapMaxIndex; y++) {
-      objectMap[x][y] = [0];
+      let objs1 = objectMap[x][y];
+      if (objs1[0] < 1) continue;
+
+      applyCollisions2_Obj1(objs1);
+
+      if (x < objectMapMaxIndex) applyCollisions2_Obj1(objs1, objectMap[x+1][y]);
+
+      if (y < objectMapMaxIndex) {
+        if (x > 0) applyCollisions2_Obj1(objs1, objectMap[x-1][y+1]);
+
+        applyCollisions2_Obj1(objs1, objectMap[x][y+1]);
+
+        if (x < objectMapMaxIndex) applyCollisions2_Obj1(objs1, objectMap[x+1][y+1]);
+      }      
     }
   }
 }
 
+function applyCollisions2_Obj1(objs) {
+  let i = 1;
+  while (i <= objs[0]) {
+    let j = i + 1;
+    let iremoved = false;
+    while (j <= objs[0]) {
+      let ret = objs[i].collision(objs[j]);
+      if (ret & 0b01) {
+        // objs[j] is removed
+        objs[j].remove(); // please note that objs[0] is updated
+      } else {
+        j++; // next please
+      }
+      if (ret & 0b10) {
+        // objs[i] is removed
+        objs[i].remove(); // please note that objs[0] is updated
+        iremoved = true;
+        break;
+      }
+    }
+    if (!iremoved) i++;
+  }
+}
 
-// Returns an array of bullets to be destroyed.
-function applyCollisions(players, bullets) {
+function applyCollisions2_Obj2(objs1, objs2) {
 
-  let players_arr = Object.values(players);
+  if (objs2[0] <= 0) return;
+
+  let i = 1;
+  while (i <= objs1[0]) {
+    let j = 1;
+    let iremoved = false;
+    while (j <= objs2[0]) {
+      let ret = objs1[i].collision(objs2[j]);
+      if (ret & 0b01) {
+        // objs[j] is removed
+        objs2[j].remove(); // please note that objs[0] is updated
+      } else {
+        j++; // next please
+      }
+      if (ret & 0b10) {
+        // objs[i] is removed
+        objs1[i].remove(); // please note that objs[0] is updated
+        iremoved = true;
+        break;
+      }
+    }
+    if (!iremoved) i++;
+  }
+}
+
+
+// Apply collision
+function applyCollisions(playersObj, bulletsObj) {
+
+  let players = Object.values(playersObj);
+  let bullets = Object.values(bulletsObj);
   let i = 0;
   while (i < bullets.length) {
 
@@ -114,6 +179,8 @@ function applyCollisions(players, bullets) {
         }
         bullet.remove();
         bullet2.remove();
+        delete bulletsObj[bullet.id];
+        delete bulletsObj[bullet2.id];
         bulletCollision = true;
         break;
       }
@@ -121,14 +188,14 @@ function applyCollisions(players, bullets) {
 
     if (bulletCollision) continue;
 
-    for (let j = 0; j < players_arr.length; j++) {
-      const player = players_arr[j];
+    for (let j = 0; j < players.length; j++) {
+      const player = players[j];
       if (
         bullet.parentID !== player.id &&
         player.distanceTo(bullet) <= Constants.PLAYER_RADIUS + Constants.BULLET_RADIUS
       ) {
-        if (players[bullet.parentID]) {
-          players[bullet.parentID].onDealtDamage();
+        if (playersObj[bullet.parentID]) {
+          playersObj[bullet.parentID].onDealtDamage();
         }
 	if (i == bullets.length - 1) {
           bullets.pop();
@@ -138,6 +205,7 @@ function applyCollisions(players, bullets) {
         player.takeBulletDamage();
         bulletCollision = true;
         bullet.remove();
+        delete bulletsObj[bullet.id];
         break;
       }
     }
@@ -145,12 +213,12 @@ function applyCollisions(players, bullets) {
     if (!bulletCollision) i++;
   }
 
-  for (let i = 0; i < players_arr.length; i++) {
+  for (let i = 0; i < players.length; i++) {
     // Look for player collision
-    for (let j = 0; j < players_arr.length; j++) {
+    for (let j = 0; j < players.length; j++) {
       if (i == j) continue;
-      const p1 = players_arr[i];
-      const p2 = players_arr[j];
+      const p1 = players[i];
+      const p2 = players[j];
       if (p1.distanceTo(p2) <= Constants.PLAYER_RADIUS*2) {
         p1.takeCollisionDamage();
         p2.takeCollisionDamage();
@@ -159,7 +227,55 @@ function applyCollisions(players, bullets) {
   }
 }
 
+function updateObjs(dt) {
+  for (let x = 0; x <= objectMapMaxIndex; x++) {
+    for (let y = 0; y <= objectMapMaxIndex; y++) {
+      for (let i = 1; i <= objectMap[x][y][0]; i++) {
+        objectMap[x][y][i].update(dt);
+      }
+    }
+  }
+}
 
+function getObjectUpdates(player) {
+
+    const halfw = Math.round ( (Math.floor(player.canvasWidth / Constants.MAP_OBJ_GRID_SIZE) + 1) / 2);
+    const halfh = Math.round ( (Math.floor(player.canvasHeight / Constants.MAP_OBJ_GRID_SIZE) + 1) / 2);
+
+    const mapX1 = Math.max(0, player.mapX - halfw);
+    const mapX2 = Math.min(objectMapMaxIndex, player.mapX + halfw);
+    const mapY1 = Math.max(0, player.mapY - halfh);
+    const mapY2 = Math.min(objectMapMaxIndex, player.mapY + halfh);
+
+    let nearbyPlayers = [];
+    let otherNearbyBullets = [];
+    let myNearbyBullets = [];
+    for (let x = mapX1; x <= mapX2; x++) {
+      for (let y = mapY1; y <= mapY2; y++) {
+        for (let i = 1; i <= objectMap[x][y][0]; i++) {
+          const obj = objectMap[x][y][i];
+          if (obj.getType() < 20) {
+            // bullets and raw objects
+            if (obj.parentID != player.id) {
+              otherNearbyBullets.push(obj);
+            } else {
+              myNearbyBullets.push(obj);
+            }
+          } else if (obj.getType() < 30) {
+            // players
+            if (obj.id != player.id) {
+              nearbyPlayers.push(obj);
+            }
+          }
+        }
+      }
+    }
+ 
+//    if (c > 10)
+//    console.log("for player:" + player.username + " obj:" + c + " hx:" + halfw + " hy:" + halfh + " cw:" + player.canvasWidth + " cy:" + player.canvasHeight);
+ 
+    return {nearbyPlayers, otherNearbyBullets, myNearbyBullets};
+}
 
 module.exports = {
   init, 
@@ -167,6 +283,8 @@ module.exports = {
   applyCollisions2,
   addObject,
   updateObject,
-  removeObject
+  removeObject,
+  getObjectUpdates,
+  updateObjs
 }
 

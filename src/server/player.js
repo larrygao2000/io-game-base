@@ -1,6 +1,7 @@
 const ObjectClass = require('./object');
 const Bullet = require('./bullet');
 const Constants = require('../shared/constants');
+const CollisionMap = require('./collisions');
 
 // 0: still
 // 1: right, 2: upright, 3: up,   4: upleft 
@@ -27,6 +28,7 @@ class Player extends ObjectClass {
     this.canvasWidth = Constants.MAP_SIZE / 4;
     this.canvasHeight = Constants.MAP_SIZE / 4;
     this.collisionCooldown = Constants.PLAYER_COLLISION_COOLDOWN;
+    this.type = 20;
   }
 
   restart() {
@@ -54,6 +56,8 @@ class Player extends ObjectClass {
     // Make sure the player stays in bounds
     this.x = Math.max(0, Math.min(Constants.MAP_SIZE, this.x));
     this.y = Math.max(0, Math.min(Constants.MAP_SIZE, this.y));
+ 
+    CollisionMap.updateObject(this);
 
     this.hp_recover -= dt;
     if (this.hp_recover <= 0) {
@@ -66,12 +70,45 @@ class Player extends ObjectClass {
     if (this.fireCooldownCount <= 0 && this.autofire || this.bullets > 0) {
       this.fireCooldownCount += this.fireCooldown;
       this.bullets--;
-      return new Bullet(this.id, this.x, this.y, this.direction);
+      new Bullet(this, this.x, this.y, this.direction);
     }
 
     if (this.collisionCooldown > 0) this.collisionCooldown -= dt;
+  }
 
-    return null;
+  collision(obj) {
+    // do nothing
+    if (obj.getType() >= 30) {
+      let ret=obj.collision(this);
+
+      return ((ret & 1) << 1) | ((ret & 2) >>> 1) ;
+    }
+
+    if (obj.getType() >= 20) {
+      if (this.id == obj.id ||
+        this.distanceTo(obj) > Constants.PLAYER_RADIUS*2) return 0;
+
+      // player PK
+
+      this.takeCollisionDamage();
+      obj.takeCollisionDamage();
+
+      return 0
+    }
+
+    // player vs bullet
+    if (this.id == obj.parentID ||
+        this.distanceTo(obj) > Constants.PLAYER_RADIUS + Constants.BULLET_RADIUS) return 0;
+
+    // collision
+
+    if (obj.parent) {
+      obj.parent.onDealtDamage();
+    }
+    this.takeBulletDamage();
+
+    // remove the bullet
+    return 0b01;
   }
 
   setMoveDirection(dir) {
