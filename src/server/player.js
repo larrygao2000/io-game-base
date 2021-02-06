@@ -120,13 +120,14 @@ class Player extends ObjectClass {
 
     // collision
 
+    this.takeBulletDamage();
+
     if (obj.parent) {
-      obj.parent.onDealtDamage();
+      obj.parent.onDealtDamage(this);
       if (this.isBot && ! obj.parent.isBot && Math.random() < 0.5) {
         this.lockPlayer = obj.parent;
       }
     }
-    this.takeBulletDamage();
 
     // remove the bullet
     return 0b01;
@@ -178,8 +179,13 @@ class Player extends ObjectClass {
     }
   }
 
-  onDealtDamage() {
-    this.score += Constants.SCORE_BULLET_HIT;
+  onDealtDamage(obj) {
+    if (obj.hp <= 0) {
+      // killed the obj
+      this.score += Constants.SCORE_KILL;
+    } else {
+      this.score += Constants.SCORE_BULLET_HIT;
+    }
   }
 
   serializeForUpdate() {
@@ -189,6 +195,7 @@ class Player extends ObjectClass {
       username: this.username,
       hp: this.hp,
       shieldTime: this.shieldTime,
+      score: Math.round(this.score),
     };
   }
 }

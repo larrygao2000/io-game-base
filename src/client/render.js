@@ -168,7 +168,7 @@ function renderBackground(x, y) {
 
 // Renders a ship at the given coordinates
 function renderPlayer(me, player) {
-  const { x, y, direction,username } = player;
+  const { x, y, direction, username } = player;
   const canvasX = canvas.width / 2 + x - me.x;
   const canvasY = canvas.height / 2 + y - me.y;
   if (canvasX < -PLAYER_RADIUS || canvasY < -PLAYER_RADIUS || canvasX > canvas.width || canvasY > canvas.height) return;
@@ -204,10 +204,6 @@ function renderPlayer(me, player) {
     2,
   );
 
-  // write the player's name
-  context.font = "10px Arial";
-  context.fillText(username,canvasX - PLAYER_RADIUS,canvasY + PLAYER_RADIUS + 20);
-
   context.fillStyle = 'red';
   context.fillRect(
     canvasX - PLAYER_RADIUS + PLAYER_RADIUS * 2 * player.hp / PLAYER_MAX_HP,
@@ -215,8 +211,13 @@ function renderPlayer(me, player) {
     PLAYER_RADIUS * 2 * (1 - player.hp / PLAYER_MAX_HP),
     2,
   );
-  context.fillText(player.hp, canvasX - PLAYER_RADIUS,canvasY + PLAYER_RADIUS + 2);
 
+  // write the player's name
+  context.font = "10px Arial";
+  context.fillStyle = 'black';
+  context.fillText(username,canvasX - PLAYER_RADIUS,canvasY + PLAYER_RADIUS + 20);
+  context.fillText(player.hp, canvasX - PLAYER_RADIUS,canvasY + PLAYER_RADIUS + 2);
+  context.fillText(player.score, canvasX - PLAYER_RADIUS,canvasY - PLAYER_RADIUS - 12);
 }
 
 function renderBullet(me, bullet) {
