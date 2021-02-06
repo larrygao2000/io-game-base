@@ -85,8 +85,10 @@ class Player extends ObjectClass {
     }
 
     if (obj.getType() >= 20) {
-      if (this.id == obj.id ||
-        this.distanceTo(obj) > Constants.PLAYER_RADIUS*2) return 0;
+      if (this.id == obj.id) return 0;
+
+      const dist = Constants.PLAYER_RADIUS*2 - this.distanceTo(obj);
+      if (dist < 0) return 0;
 
       // player PK
 
@@ -96,16 +98,17 @@ class Player extends ObjectClass {
       // bounce the players back
       if (this.x != obj.x || this.y != obj.y) {
         const dir = Math.atan2(this.x - obj.x, obj.y - this.y);
-        const x = Constants.PLAYER_RADIUS * Math.sin(dir);
-        const y = Constants.PLAYER_RADIUS * Math.cos(dir);
+        const x = (dist + 1) * Math.sin(dir) / 2;
+        const y = (dist + 1) * Math.cos(dir) / 2;
 
         // this is called from applyCollision which depends on collision map
         // so we just set to new position -- collision mapX/mapY will be updated in next update(dt) call
+
         this.x = Math.max(0, Math.min(Constants.MAP_SIZE, this.x + x));
-        this.y = Math.max(0, Math.min(Constants.MAP_SIZE, this.y + y));
+        this.y = Math.max(0, Math.min(Constants.MAP_SIZE, this.y - y));
 
         obj.x = Math.max(0, Math.min(Constants.MAP_SIZE, obj.x - x));
-        obj.y = Math.max(0, Math.min(Constants.MAP_SIZE, obj.y - y));
+        obj.y = Math.max(0, Math.min(Constants.MAP_SIZE, obj.y + y));
       }
 
       return 0

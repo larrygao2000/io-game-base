@@ -4,6 +4,7 @@ import { debounce } from 'throttle-debounce';
 import { getAsset } from './assets';
 import { getCurrentState } from './state';
 import { updateCanvasSize } from './networking';
+import { initKeymap } from "./input"; 
 
 const Constants = require('../shared/constants');
 
@@ -259,6 +260,7 @@ let renderInterval = setInterval(renderMainMenu, 1000 / CLIENT_UPDATE_PER_SECOND
 
 // Replaces main menu rendering with game rendering.
 export function startRendering() {
+  initKeymap();
   clearInterval(renderInterval);
   updateCanvasSize(canvas.width, canvas.height);
   renderInterval = setInterval(render, 1000 / CLIENT_UPDATE_PER_SECOND);
@@ -269,3 +271,4 @@ export function stopRendering() {
   clearInterval(renderInterval);
   renderInterval = setInterval(renderMainMenu, 1000 / CLIENT_UPDATE_PER_SECOND);
 }
+

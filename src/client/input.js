@@ -8,6 +8,10 @@ import { updateToggle } from './networking';
 let lastFireTime=(new Date()).getTime();
 let keydownMap = {};
 
+export function initKeymap() {
+  keydownMap = {};
+}
+
 function handleFireInput() {
   let curTime = (new Date()).getTime();
   if (curTime - lastFireTime > 500) {
