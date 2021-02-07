@@ -92,8 +92,9 @@ class Player extends ObjectClass {
 
       // player PK
 
-      this.takeCollisionDamage();
-      obj.takeCollisionDamage();
+      const collisiondamage = Math.min(this.hp, Math.min(obj.hp, Constants.COLLISION_DAMAGE));
+      this.takeCollisionDamage(collisiondamage);
+      obj.takeCollisionDamage(collisiondamage);
 
       // bounce the players back
       if (this.x != obj.x || this.y != obj.y) {
@@ -171,10 +172,10 @@ class Player extends ObjectClass {
       this.hp -= Constants.BULLET_DAMAGE;
   }
 
-  takeCollisionDamage() {
+  takeCollisionDamage(damage) {
     if (this.collisionCooldown < 0) {
       if (this.shieldTime < 0)
-        this.hp -= Constants.COLLISION_DAMAGE;
+        this.hp -= damage;
       this.collisionCooldown = Constants.PLAYER_COLLISION_COOLDOWN;
     }
   }
