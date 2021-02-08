@@ -38,6 +38,8 @@ class Player extends ObjectClass {
     this.canvasHeight = Constants.MAP_SIZE / 4;
     this.collisionCooldown = Constants.PLAYER_COLLISION_COOLDOWN;
     this.type = 20;
+    this.lost_hp = 0;
+    this.lost_hp_per_update = 2;
   }
 
   restart() {
@@ -72,6 +74,16 @@ class Player extends ObjectClass {
     if (this.hp_recover <= 0) {
       if (this.hp < Constants.PLAYER_MAX_HP) this.hp ++;
       this.hp_recover += Constants.PLAYER_HP_RECOVERY_RATE;
+    }
+
+    if (this.lost_hp > 0) {
+      if (this.lost_hp <= this.lost_hp_per_update) {
+        this.hp -= this.lost_hp;
+        this.lost_hp = 0;
+      } else {
+        this.hp -= this.lost_hp_per_update;
+        this.lost_hp -= this.lost_hp_per_update;
+      }
     }
 
     // Fire a bullet, if needed
@@ -176,13 +188,26 @@ class Player extends ObjectClass {
   }
 
   takeBulletDamage() {
-    if ((this.shieldTime < 0) && (!this.immortal))
-      this.hp -= Constants.BULLET_DAMAGE;
+    if ((this.shieldTime < 0) && (!this.immortal)) {
+//      this.hp -= Constants.BULLET_DAMAGE;
+      this.lost_hp += Constants.BULLET_DAMAGE;
+
+      // we do 40 updates per second, so this will allow the HP removed in half second
+      this.lost_hp_per_update = this.lost_hp / 20;
+      if (this.lost_hp_per_update < 1) this.lost_hp_per_update = 1;
+    }
   }
 
   takeCollisionDamage(damage) {
     if (this.collisionCooldown < 0) {
-      if ((this.shieldTime < 0) && (!this.immortal)) this.hp -= damage;
+      if ((this.shieldTime < 0) && (!this.immortal)) {
+//	this.hp -= damage;
+	this.lost_hp += damage;
+
+        // we do 40 updates per second, so this will allow the HP removed in half second
+        this.lost_hp_per_update = this.lost_hp / 20;
+        if (this.lost_hp_per_update < 1) this.lost_hp_per_update = 1;
+      }
       this.collisionCooldown = Constants.PLAYER_COLLISION_COOLDOWN;
     }
   }

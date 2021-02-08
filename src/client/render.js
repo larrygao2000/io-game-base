@@ -217,7 +217,7 @@ function renderPlayer(color, me, player) {
   context.font = "10px Arial";
   context.fillStyle = 'black';
   context.fillText(username,canvasX - PLAYER_RADIUS,canvasY + PLAYER_RADIUS + 20);
-  context.fillText(player.hp, canvasX - PLAYER_RADIUS,canvasY + PLAYER_RADIUS + 2);
+  context.fillText(Math.round(player.hp), canvasX - PLAYER_RADIUS,canvasY + PLAYER_RADIUS + 2);
   context.fillText(player.score, canvasX - PLAYER_RADIUS,canvasY - PLAYER_RADIUS - 12);
 }
 
