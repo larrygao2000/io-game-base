@@ -30,10 +30,20 @@ class Object {
   }
 
   collision(obj) {
+    if (obj.getType() > this.getType()) {
+      const ret=obj.collision2(this);
+
+      return ((ret & 1) << 1) | ((ret & 2) >>> 1) ;
+    }
+
+    return this.collision2(obj);
+  }
+ 
+  collision2(obj) {
     // do nothing
     return 0;
   }
-
+  
   remove() {
     CollisionMap.removeObject(this);
   }

@@ -248,23 +248,26 @@ function getObjectUpdates(player) {
     const mapY2 = Math.min(objectMapMaxIndex, player.mapY + halfh);
 
     let nearbyPlayers = [];
+    let myteamNearbyPlayers = [];
     let otherNearbyBullets = [];
-    let myNearbyBullets = [];
+    let myteamNearbyBullets = [];
     for (let x = mapX1; x <= mapX2; x++) {
       for (let y = mapY1; y <= mapY2; y++) {
         for (let i = 1; i <= objectMap[x][y][0]; i++) {
           const obj = objectMap[x][y][i];
           if (obj.getType() < 20) {
             // bullets and raw objects
-            if (obj.parentID != player.id) {
+            if (obj.group != player.group) {
               otherNearbyBullets.push(obj);
             } else {
-              myNearbyBullets.push(obj);
+              myteamNearbyBullets.push(obj);
             }
           } else if (obj.getType() < 30) {
             // players
-            if (obj.id != player.id) {
+            if (obj.group != player.group) {
               nearbyPlayers.push(obj);
+            } else if (obj.id != player.id) {
+              myteamNearbyPlayers.push(obj);
             }
           }
         }
@@ -274,7 +277,7 @@ function getObjectUpdates(player) {
 //    if (c > 10)
 //    console.log("for player:" + player.username + " obj:" + c + " hx:" + halfw + " hy:" + halfh + " cw:" + player.canvasWidth + " cy:" + player.canvasHeight);
  
-    return {nearbyPlayers, otherNearbyBullets, myNearbyBullets};
+    return {myteamNearbyPlayers, nearbyPlayers, otherNearbyBullets, myteamNearbyBullets};
 }
 
 module.exports = {

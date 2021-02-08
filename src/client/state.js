@@ -47,7 +47,7 @@ function getBaseUpdate() {
   return -1;
 }
 
-// Returns { me, others, mybullets, otherbullets }
+// Returns { me, myteam, others, myteambullets, otherbullets }
 export function getCurrentState() {
   if (!firstServerTimestamp) {
     return {};
@@ -66,8 +66,9 @@ export function getCurrentState() {
     const ratio = (serverTime - baseUpdate.t) / (next.t - baseUpdate.t);
     return {
       me: interpolateObject(baseUpdate.me, next.me, ratio),
+      myteam: interpolateObjectArray(baseUpdate.myteam, next.myteam, ratio),
       others: interpolateObjectArray(baseUpdate.others, next.others, ratio),
-      mybullets: interpolateObjectArray(baseUpdate.mybullets, next.mybullets, ratio),
+      myteambullets: interpolateObjectArray(baseUpdate.myteambullets, next.myteambullets, ratio),
       otherbullets: interpolateObjectArray(baseUpdate.otherbullets, next.otherbullets, ratio),
       smallmap: baseUpdate.smallmap, // no need to interpolate the small map, it is too small to notice
     };

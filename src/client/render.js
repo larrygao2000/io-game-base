@@ -43,7 +43,7 @@ canvas.onselectstart = function(e) {
 
 function render() {
 
-  const { me, others, mybullets, otherbullets, smallmap} = getCurrentState();
+  const { me, myteam, others, myteambullets, otherbullets, smallmap} = getCurrentState();
   if (!me) {
     return;
   }
@@ -96,12 +96,13 @@ function render() {
   
 
   // Draw all bullets
-  mybullets.forEach(renderBullet.bind(null, me));
-  otherbullets.forEach(renderBullet2.bind(null, me));
+  myteambullets.forEach(renderBullet.bind(null, 'blue', me));
+  otherbullets.forEach(renderBullet.bind(null, 'red', me));
 
   // Draw all players
-  renderPlayer(me, me);
-  others.forEach(renderPlayer.bind(null, me));
+  renderPlayer('blue', me, me);
+  myteam.forEach(renderPlayer.bind(null, 'blue', me));
+  others.forEach(renderPlayer.bind(null, 'red', me));
 
   renderSmallMap(me, smallmap);
 }
@@ -167,7 +168,7 @@ function renderBackground(x, y) {
 }
 
 // Renders a ship at the given coordinates
-function renderPlayer(me, player) {
+function renderPlayer(color, me, player) {
   const { x, y, direction, username } = player;
   const canvasX = canvas.width / 2 + x - me.x;
   const canvasY = canvas.height / 2 + y - me.y;
@@ -178,7 +179,7 @@ function renderPlayer(me, player) {
   context.translate(canvasX, canvasY);
   context.rotate(direction);
   context.drawImage(
-    me == player? getAsset('ship-blue.svg') : getAsset('ship-red.svg'),
+    color == 'blue'? getAsset('ship-blue.svg') : getAsset('ship-red.svg'),
     -PLAYER_RADIUS,
     -PLAYER_RADIUS,
     PLAYER_RADIUS * 2,
@@ -220,29 +221,14 @@ function renderPlayer(me, player) {
   context.fillText(player.score, canvasX - PLAYER_RADIUS,canvasY - PLAYER_RADIUS - 12);
 }
 
-function renderBullet(me, bullet) {
+function renderBullet(color, me, bullet) {
   const { x, y } = bullet;
   const canvasX = canvas.width / 2 + x - me.x;
   const canvasY = canvas.height / 2 + y - me.y;
   if (canvasX < -PLAYER_RADIUS || canvasY < -PLAYER_RADIUS || canvasX > canvas.width || canvasY > canvas.height) return;
 
   context.drawImage(
-    getAsset('bullet-blue.svg'),
-    canvasX - BULLET_RADIUS,
-    canvasY - BULLET_RADIUS,
-    BULLET_RADIUS * 2,
-    BULLET_RADIUS * 2,
-  );
-}
-
-function renderBullet2(me, bullet) {
-  const { x, y } = bullet;
-  const canvasX = canvas.width / 2 + x - me.x;
-  const canvasY = canvas.height / 2 + y - me.y;
-  if (canvasX < -PLAYER_RADIUS || canvasY < -PLAYER_RADIUS || canvasX > canvas.width || canvasY > canvas.height) return;
-
-  context.drawImage(
-    getAsset('bullet-red.svg'),
+    color == 'blue'? getAsset('bullet-blue.svg') : getAsset('bullet-red.svg'),
     canvasX - BULLET_RADIUS,
     canvasY - BULLET_RADIUS,
     BULLET_RADIUS * 2,

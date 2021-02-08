@@ -19,6 +19,9 @@ module.exports = Object.freeze({
   CLIENT_UPDATE_PER_SECOND: 60,
   SERVER_UPDATE_PER_SECOND: 40,
 
+  MAGIC_WORD: '#f0rever',
+
+  NUM_BOTS: 100,
   MAP_SIZE: 6000,
   MAP_GRID_SIZE: 100,
   MAP_OBJ_GRID_SIZE: 50,

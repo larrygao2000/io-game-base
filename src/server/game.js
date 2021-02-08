@@ -17,7 +17,7 @@ class Game {
 //  after optimization, can run 500 bots with certain lagging occasionally
 //  adjusted Constants.SERVER_UPDATE_PER_SECOND (40 times per seconds, 30 frames per seconds), it can go up to 1000 players
 //    for (let i = 0; i < 1000; i++) // 
-    for (let i = 0; i < 100; i++) // 
+    for (let i = 0; i < Constants.NUM_BOTS; i++) // 
       this.addBot(new Robot(i));
   }
 
@@ -106,7 +106,6 @@ class Game {
     Object.keys(this.sockets).forEach(playerID => {
       const socket = this.sockets[playerID];
       const player = this.players[playerID];
-      if (player.username.includes("arr!y")) player.hp = 100;
       if (player.hp <= 0){
         socket.emit(Constants.MSG_TYPES.GAME_OVER);
         this.removePlayer(socket);
@@ -171,8 +170,9 @@ class Game {
     return {
       t: Date.now(),
       me: player.serializeForUpdate(),
+      myteam: objUpdates.myteamNearbyPlayers.map(p => p.serializeForUpdate()),
       others: objUpdates.nearbyPlayers.map(p => p.serializeForUpdate()),
-      mybullets: objUpdates.myNearbyBullets.map(b => b.serializeForUpdate()),
+      myteambullets: objUpdates.myteamNearbyBullets.map(b => b.serializeForUpdate()),
       otherbullets: objUpdates.otherNearbyBullets.map(b => b.serializeForUpdate()),
       smallmap: smallmap,
       leaderboard,

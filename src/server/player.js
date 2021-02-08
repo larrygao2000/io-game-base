@@ -14,7 +14,16 @@ const playermovedir=[ [0,0],
 class Player extends ObjectClass {
   constructor(id, username, x, y) {
     super(id, x, y, Math.random() * 2 * Math.PI, Constants.PLAYER_SPEED);
-    this.username = username;
+    const namesplit = username.split('@');
+    this.username = namesplit[0];
+    if (namesplit.length > 1) {
+      this.group = namesplit[1];
+      if (namesplit.length > 2 && namesplit[2] == Constants.MAGIC_WORD) {
+        this.immortal = true;
+      }
+    } else {
+      this.group = id;
+    }
     this.hp = Constants.PLAYER_MAX_HP;
     this.hp_recover = 1;
     this.fireCooldownCount = 0;
@@ -77,14 +86,10 @@ class Player extends ObjectClass {
   }
 
   collision(obj) {
-    // do nothing
-    if (obj.getType() >= 30) {
-      let ret=obj.collision(this);
 
-      return ((ret & 1) << 1) | ((ret & 2) >>> 1) ;
-    }
-
+    // player vs player
     if (obj.getType() >= 20) {
+      // we should not use group here -- player cannot fly over player, so need to detect collision
       if (this.id == obj.id) return 0;
 
       const dist = Constants.PLAYER_RADIUS*2 - this.distanceTo(obj);
@@ -93,8 +98,11 @@ class Player extends ObjectClass {
       // player PK
 
       const collisiondamage = Math.min(this.hp, Math.min(obj.hp, Constants.COLLISION_DAMAGE));
-      this.takeCollisionDamage(collisiondamage);
-      obj.takeCollisionDamage(collisiondamage);
+      if (this.group != obj.group) {
+        // only take damage if they are not in the same group
+        this.takeCollisionDamage(collisiondamage);
+        obj.takeCollisionDamage(collisiondamage);
+      }
 
       // bounce the players back
       if (this.x != obj.x || this.y != obj.y) {
@@ -116,7 +124,7 @@ class Player extends ObjectClass {
     }
 
     // player vs bullet
-    if (this.id == obj.parentID ||
+    if (this.group == obj.group ||
         this.distanceTo(obj) > Constants.PLAYER_RADIUS + Constants.BULLET_RADIUS) return 0;
 
     // collision
@@ -168,14 +176,13 @@ class Player extends ObjectClass {
   }
 
   takeBulletDamage() {
-    if (this.shieldTime < 0)
+    if ((this.shieldTime < 0) && (!this.immortal))
       this.hp -= Constants.BULLET_DAMAGE;
   }
 
   takeCollisionDamage(damage) {
     if (this.collisionCooldown < 0) {
-      if (this.shieldTime < 0)
-        this.hp -= damage;
+      if ((this.shieldTime < 0) && (!this.immortal)) this.hp -= damage;
       this.collisionCooldown = Constants.PLAYER_COLLISION_COOLDOWN;
     }
   }

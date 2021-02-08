@@ -7,6 +7,7 @@ class Bullet extends ObjectClass {
     super(shortid(), x, y, dir, Constants.BULLET_SPEED);
     this.parent = parent;
     this.parentID = parent.id;
+    this.group = parent.group;
     this.liveTime = 5; // 5 seconds
     this.type = 10;
   }
@@ -21,16 +22,10 @@ class Bullet extends ObjectClass {
     }
   }
 
-  collision(obj) {
-    // do nothing
-    if (obj.getType() >= 20) {
-      let ret=obj.collision(this);
-      
-      return ((ret & 1) << 1) | ((ret & 2) >>> 1) ;
-    }
-    // Now both are bullets
+  collision2(obj) {
+    // Both are bullets
 
-    if (this.parentID == obj.parentID ||  
+    if (this.group == obj.group || 
         this.distanceTo(obj) > Constants.BULLET_RADIUS * 2) return 0;
 
     // collision
