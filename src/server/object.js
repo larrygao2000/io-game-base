@@ -84,7 +84,7 @@ class Object {
     return Math.sqrt(dx * dx + dy * dy);
   }
 
-  setDirection(dir) {
+  setMoveDirection(dir) {
     this.direction = dir;
   }
 

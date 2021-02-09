@@ -143,7 +143,7 @@ class Player extends ObjectClass {
 
   setMoveDirection(speed, dir) {
     this.speed = speed;
-    super.setDirection(dir);
+    super.setMoveDirection(dir);
   }
 
   setMoveDirection(dir) {
@@ -151,7 +151,7 @@ class Player extends ObjectClass {
       this.speed = 0;
     } else {
       this.speed = this.max_speed;
-      super.setDirection( (dir - 1) * Math.PI / 4 );
+      super.setMoveDirection( (dir - 1) * Math.PI / 4 );
     }
   }
 
