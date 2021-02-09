@@ -8,7 +8,7 @@ import { initKeymap } from "./input";
 
 const Constants = require('../shared/constants');
 
-const { PLAYER_RADIUS, BULLET_RADIUS, MAP_SIZE, MAP_GRID_SIZE, SMAP_SIZE, CLIENT_UPDATE_PER_SECOND, BOOSTER_RADIUS, BOOSTER_MAX_HP } = Constants;
+const { PLAYER_RADIUS, BULLET_RADIUS, MAP_SIZE, MAP_GRID_SIZE, SMAP_SIZE, CLIENT_UPDATE_PER_SECOND, BOOSTER_RADIUS, BOOSTER_SIDES, BOOSTER_COLOR, BOOSTER_MAX_HP } = Constants;
 
 // Get the canvas graphics context
 const canvas = document.getElementById('game-canvas');
@@ -99,7 +99,7 @@ function render() {
   myteambullets.forEach(renderBullet.bind(null, 'blue', me));
   otherbullets.forEach(renderBullet.bind(null, 'red', me));
 
-  boosters.forEach(renderBooster.bind(null, 'cyan', me));
+  boosters.forEach(renderBooster.bind(null, me));
 
   // Draw all players
   renderPlayer('blue', me, me);
@@ -225,7 +225,7 @@ function renderPlayer(color, me, player) {
   context.fillText(player.score, canvasX - PLAYER_RADIUS,canvasY - PLAYER_RADIUS - 12);
 }
 
-function renderBooster(color, me, booster) {
+function renderBooster(me, booster) {
   const { x, y, direction, hp, level } = booster;
   const canvasX = canvas.width / 2 + x - me.x;
   const canvasY = canvas.height / 2 + y - me.y;
@@ -236,22 +236,16 @@ function renderBooster(color, me, booster) {
   context.rotate(direction);  //  degree to angle in radians: angle = degree * Math.PI / 180;
 
   context.beginPath();
-  if (level == 0) {
-    const y2 = BOOSTER_RADIUS[level] * Math.sin(Math.PI / 6); // 30 degree
-    const x2 = BOOSTER_RADIUS[level] * Math.cos(Math.PI / 6);
 
-    context.moveTo(0, -BOOSTER_RADIUS[level]);
-    context.lineTo(-x2, y2);
-    context.lineTo(x2, y2);
-  } else if (level == 1) {
-    const d = BOOSTER_RADIUS[level] / 1.4142; // Math.sqrt(2);
-    context.moveTo(-d, -d);
-    context.lineTo(d, -d);
-    context.lineTo(d, d);
-    context.lineTo(-d, d);
+  const sides = BOOSTER_SIDES[level];
+  const angle = 2 * Math.PI / sides;
+  context.moveTo(BOOSTER_RADIUS[level], 0);
+  for (let i = 1; i < sides; i++) {
+    context.lineTo(BOOSTER_RADIUS[level] * Math.cos(angle * i), -BOOSTER_RADIUS[level] * Math.sin(angle * i));
   }
+
   context.closePath();
-  context.fillStyle = color;
+  context.fillStyle = BOOSTER_COLOR[level];
   context.fill();
 
   context.restore();
@@ -274,6 +268,9 @@ function renderBooster(color, me, booster) {
     2,
   );
 
+  context.font = "10px Arial";
+  context.fillStyle = 'black';
+  context.fillText(Math.round(hp), canvasX - BOOSTER_RADIUS[level], canvasY + BOOSTER_RADIUS[level] + 2);
 }
 
 function renderBullet(color, me, bullet) {

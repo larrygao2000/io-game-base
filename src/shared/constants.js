@@ -14,7 +14,9 @@ module.exports = Object.freeze({
   PLAYER_COLLISION_COOLDOWN: 0.9,
 
   BOOSTER_NUM_TYPES:  9,
-  BOOSTER_RADIUS:     [15,   15,   15,   15,    15,    20,    20,     25,      25,     ],
+  BOOSTER_RADIUS:     [15,   15,   15,   15,    18,    18,    18,     21,      21,     ],
+  BOOSTER_SIDES:      [3,    4,    5,    6,     4,     5,     6,      5,       6,     ],
+  BOOSTER_COLOR:      ['#00FFFF', '#00FFFF', '#00FFFF','#00FFFF','#7FFFD4', '#7FFFD4','#7FFFD4','#66CDAA','#66CDAA'],
   BOOSTER_RARE:       [10,   25,   50,   100,   250,   500,   1000,   10000,   25000,  ],
   BOOSTER_MAX_HP:     [1000, 2500, 5000, 10000, 25000, 50000, 100000, 1000000, 2500000,],
   BOOSTER_TTL:        [300,  600,  1800, 3600,  7200,  36000, 86400,  172800,  172800, ],  // 172800 seconds: 2 days
