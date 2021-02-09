@@ -105,6 +105,11 @@ class Player extends ObjectClass {
     }
 
     if (this.collisionCooldown > 0) this.collisionCooldown -= dt;
+
+    if (this.hp <= 0 && this.lastHitBy) {
+      // this player is killed by lastHitBy
+      this.lastHitBy.onDealtKill();
+    }
   }
 
   collision2(obj) {
@@ -200,7 +205,6 @@ class Player extends ObjectClass {
 
   takeBulletDamage() {
     if ((this.shieldTime < 0) && (!this.immortal)) {
-//      this.hp -= Constants.BULLET_DAMAGE;
       this.lost_hp += Constants.BULLET_DAMAGE;
 
       // we do 40 updates per second, so this will allow the HP removed in half second
@@ -212,7 +216,6 @@ class Player extends ObjectClass {
   takeCollisionDamage(damage) {
     if (this.collisionCooldown < 0) {
       if ((this.shieldTime < 0) && (!this.immortal)) {
-//	this.hp -= damage;
 	this.lost_hp += damage;
 
         // we do 40 updates per second, so this will allow the HP removed in half second
@@ -224,12 +227,12 @@ class Player extends ObjectClass {
   }
 
   onDealtDamage(obj) {
-    if (obj.hp <= 0) {
-      // killed the obj
-      this.score += Constants.SCORE_KILL;
-    } else {
-      this.score += Constants.SCORE_BULLET_HIT;
-    }
+    this.score += Constants.SCORE_BULLET_HIT;
+    obj.lastHitBy = this;
+  }
+
+  onDealtKill() {
+    this.score += Constants.SCORE_KILL;
   }
 
   serializeForUpdate() {
