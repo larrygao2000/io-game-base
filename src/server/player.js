@@ -41,7 +41,6 @@ class Player extends ObjectClass {
 
     this.fireCooldownCount = 0;
     this.fireCooldown = Constants.PLAYER_FIRE_COOLDOWN;
-    this.fireInterval = Constants.PLAYER_FIRE_INTERVAL;
     this.score = 0;
     this.bullets = 0;
     this.autofire = false;
@@ -68,9 +67,11 @@ class Player extends ObjectClass {
     this.hp = this.hp_max;
     this.hp_recover = 1;
     this.fireCooldownCount = 0;
-    this.score = 0;
+    this.score /= 3;
     this.bullets = 0;
     this.speed = 0;
+ 
+    CollisionMap.addObject(this);
   }
 
   // Returns a newly created bullet, or null.
@@ -89,19 +90,11 @@ class Player extends ObjectClass {
     this.score += dt * Constants.SCORE_PER_SECOND;
 
     // Fire a bullet, if needed
-    if (this.bullets > 0) {
-      this.fireInterval -= dt;
-      if (this.fireInterval < 0) {
-        new Bullet(this, this.x, this.y, this.fireDirection);
-        this.bullets--;
-        this.fireInterval = Constants.PLAYER_FIRE_INTERVAL;
-      }
-    } else if (this.autofire) {
-      this.fireCooldownCount -= dt;
-      if (this.fireCooldownCount <= 0) {
-        this.fireCooldownCount += this.fireCooldown;
-        this.bullets = 3;
-      }
+    this.fireCooldownCount -= dt;
+    if (this.fireCooldownCount <= 0 && this.autofire || this.bullets > 0) {
+      this.fireCooldownCount += this.fireCooldown;
+      this.bullets--;
+      new Bullet(this, this.x, this.y, this.fireDirection);
     }
 
     if (this.collisionCooldown > 0) this.collisionCooldown -= dt;
@@ -182,6 +175,7 @@ class Player extends ObjectClass {
 
   toggle(tog) {
     if (tog == 'e') {
+      this.bullets = 0;
       this.autofire = ! this.autofire;
       if (this.fireCooldownCount < 0) this.fireCooldownCount = 0;
     }

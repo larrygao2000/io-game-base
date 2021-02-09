@@ -9,6 +9,7 @@ class Game {
     this.players = {};
     this.leaderboard = [];
     this.lastUpdateTime = Date.now();
+    this.removedPool = {};
     this.shouldSendUpdate = 0;
     setInterval(this.update.bind(this), 1000 / Constants.SERVER_UPDATE_PER_SECOND);
 
@@ -33,10 +34,17 @@ class Game {
   addPlayer(socket, username) {
     this.sockets[socket.id] = socket;
 
-    // Generate a position to start this player at.
-    const x = Constants.MAP_SIZE * (0.1 + Math.random() * 0.8);
-    const y = Constants.MAP_SIZE * (0.1 + Math.random() * 0.8);
-    this.players[socket.id] = new Player(socket.id, username, x, y);
+    if (this.removedPool[socket.id]) {
+      this.players[socket.id] = this.removedPool[socket.id];
+      this.players[socket.id].restart();
+      this.removedPool[socket.id] = null;
+    } else {
+
+      // Generate a position to start this player at.
+      const x = Constants.MAP_SIZE * (0.1 + Math.random() * 0.8);
+      const y = Constants.MAP_SIZE * (0.1 + Math.random() * 0.8);
+      this.players[socket.id] = new Player(socket.id, username, x, y);
+    }
   }
 
   addBot(bot) {
@@ -56,6 +64,11 @@ class Game {
     }
     this.players[socket.id].remove();
     delete this.sockets[socket.id];
+
+    if (! this.players[socket.id].isBot) {
+      this.removedPool[socket.id] = this.players[socket.id];
+      this.players[socket.id] = null;
+    }
     delete this.players[socket.id];
   }
 

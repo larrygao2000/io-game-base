@@ -34,7 +34,7 @@ class Booster extends ObjectClass {
     }
 
     // update direction
-    this.direction -= 3.1415926*2 / 100; // make a round in 10 seconds
+    this.direction -= 3.1415926*2 / 200; // make a round in 20 seconds
     if (this.collisionCooldown > 0) this.collisionCooldown -= dt;
   }
 
@@ -102,7 +102,6 @@ class Booster extends ObjectClass {
       this.collisionCooldown = Constants.PLAYER_COLLISION_COOLDOWN;
 
       this.lastHitBy = obj;
-console.log("booster is hit by " + obj.username);
     } 
   }
 
