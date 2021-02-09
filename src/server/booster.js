@@ -4,31 +4,43 @@ const Constants = require('../shared/constants');
 
 class Booster extends ObjectClass {
   constructor(x, y, level) {
-    super(shortid(), x, y, 0, Constants.BULLET_SPEED);
+    super(shortid(), x, y, 0, 0, Constants.B_TRI_RADIUS);
     this.level = level;
-    this.group = parent.group;
-    this.liveTime = 5; // 5 seconds
-    this.type = 15;
+    this.type = 30;
+
+    this.hp_max = Constants.PLAYER_MAX_HP;
+    this.hp = this.hp_max;
+    this.hp_recover = 0;
+    this.hp_recover_rate = 0;
+    this.lost_hp = 0;
+    this.lost_hp_per_update = 2;
   }
 
   // Returns true if the bullet should be destroyed
   update(dt) {
     super.update(dt);
-    // The bullet will be removed after 5 seconds
-    this.liveTime -= dt;
-    if (this.liveTime < 0 || this.x < 0 || this.x > Constants.MAP_SIZE || this.y < 0 || this.y > Constants.MAP_SIZE) {
-      this.remove();
-    }
+    // update direction
+    this.direction -= 3.1415926*2 / 100; // make a round in 10 seconds
+    if (this.fireDirection < -3.1415926) this.fireDirection = 3.1415926;
   }
 
   collision2(obj) {
-    // Both are bullets
 
-    if (this.group == obj.group || 
-        this.distanceTo(obj) > Constants.BULLET_RADIUS * 2) return 0;
+    // no collision
+    if (this.distanceTo(obj) > this.radius + obj.radius) return 0;
 
-    // collision
-    return 0b11;
+    if (obj.getType() < 20) {
+      // bullet
+      this.hp --;
+      if (this.hp < 0) {
+        if (obj.parent) {
+          obj.parent.speed *= 2;
+        }
+      }
+      return 0b01;
+    }
+
+    return 0b00;
   }
 
   serializeForUpdate() {
@@ -41,4 +53,4 @@ class Booster extends ObjectClass {
   }
 }
 
-module.exports = Bullet;
+module.exports = Booster;
