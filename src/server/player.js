@@ -13,7 +13,7 @@ const playermovedir=[ [0,0],
                       [0,1], [1/Math.sqrt(2), 1/Math.sqrt(2)]];
 class Player extends ObjectClass {
   constructor(id, username, x, y) {
-    super(id, x, y, Math.random() * 2 * Math.PI, Constants.PLAYER_SPEED);
+    super(id, x, y, Math.random() * 2 * Math.PI, Constants.PLAYER_SPEED, Constants.PLAYER_RADIUS);
     const namesplit = username.split('@');
     this.username = namesplit[0];
     if (namesplit.length > 1) {
@@ -84,14 +84,14 @@ class Player extends ObjectClass {
     if (this.collisionCooldown > 0) this.collisionCooldown -= dt;
   }
 
-  collision(obj) {
+  collision2(obj) {
 
     // player vs player
     if (obj.getType() >= 20) {
       // we should not use group here -- player cannot fly over player, so need to detect collision
       if (this.id == obj.id) return 0;
 
-      const dist = Constants.PLAYER_RADIUS*2 - this.distanceTo(obj);
+      const dist = this.radius + obj.radius - this.distanceTo(obj);
       if (dist < 0) return 0;
 
       // player PK
@@ -124,7 +124,7 @@ class Player extends ObjectClass {
 
     // player vs bullet
     if (this.group == obj.group ||
-        this.distanceTo(obj) > Constants.PLAYER_RADIUS + Constants.BULLET_RADIUS) return 0;
+        this.distanceTo(obj) > this.radius + obj.radius) return 0;
 
     // collision
 

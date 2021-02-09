@@ -4,7 +4,7 @@ const Constants = require('../shared/constants');
 
 class Bullet extends ObjectClass {
   constructor(parent, x, y, dir) {
-    super(shortid(), x, y, dir, Constants.BULLET_SPEED);
+    super(shortid(), x, y, dir, Constants.BULLET_SPEED, Constants.BULLET_RADIUS);
     this.parent = parent;
     this.parentID = parent.id;
     this.group = parent.group;
@@ -26,7 +26,7 @@ class Bullet extends ObjectClass {
     // Both are bullets
 
     if (this.group == obj.group || 
-        this.distanceTo(obj) > Constants.BULLET_RADIUS * 2) return 0;
+        this.distanceTo(obj) > (this.radius + obj.radius)) return 0;
 
     // collision
     return 0b11;
