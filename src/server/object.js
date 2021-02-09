@@ -97,7 +97,7 @@ class Object {
     const dist = this.radius + obj.radius - this.distanceTo(obj);
     if (dist < 0) return false;
 
-    // bounce the players back
+    // bounce the objects back
     if (this.x != obj.x || this.y != obj.y) {
       const dir = Math.atan2(obj.y - this.y, this.x - obj.x);
       const x = (dist + 1) * Math.cos(dir) / 2;

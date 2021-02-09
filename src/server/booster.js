@@ -25,6 +25,13 @@ class Booster extends ObjectClass {
   update(dt) {
     super.update(dt);
 
+    this.liveTime -= dt;
+
+    if (this.liveTime <= 0) {
+      this.remove();
+      return;
+    }
+
     if (this.hp <= 0) {
       if (this.lastHitBy) {
         // this player is killed by lastHitBy
@@ -54,7 +61,6 @@ class Booster extends ObjectClass {
       player.hp = player.hp_max;
     }
 
-    player.boosters[this.level]++;
     player.score += (this.level + 1) * 100;
   }
 
@@ -74,7 +80,7 @@ class Booster extends ObjectClass {
     }
 
     // player hit booster
-    if (obj.getType() >= 20) {
+    if (obj.getType() < 30) {
 
       if (this.id == obj.id) return 0;
 
@@ -88,6 +94,11 @@ class Booster extends ObjectClass {
       }
 
       return 0
+    }
+
+    // two boosters hit each other? why? Could be bounced back due to collision with player
+    if (this.id != obj.id) {
+      this.collision_bounceback(obj);
     }
 
     return 0b00;
