@@ -75,7 +75,7 @@ export function getCurrentState() {
   }
 }
 
-// interpolate x, y and direction only
+// interpolate x, y and firDirection only
 function interpolateObject(object1, object2, ratio) {
   if (!object2) {
     return object1;
@@ -83,7 +83,7 @@ function interpolateObject(object1, object2, ratio) {
 
   const interpolated = {};
   Object.keys(object1).forEach(key => {
-    if (key === 'direction') {
+    if (key === 'fireDirection') {
       interpolated[key] = interpolateDirection(object1[key], object2[key], ratio);
     } else if (key === 'x' || key == 'y') {
       interpolated[key] = Math.round(object1[key] + (object2[key] - object1[key]) * ratio);

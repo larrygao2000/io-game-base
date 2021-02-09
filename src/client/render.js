@@ -169,7 +169,7 @@ function renderBackground(x, y) {
 
 // Renders a ship at the given coordinates
 function renderPlayer(color, me, player) {
-  const { x, y, direction, username } = player;
+  const { x, y, fireDirection, username } = player;
   const canvasX = canvas.width / 2 + x - me.x;
   const canvasY = canvas.height / 2 + y - me.y;
   if (canvasX < -PLAYER_RADIUS || canvasY < -PLAYER_RADIUS || canvasX > canvas.width || canvasY > canvas.height) return;
@@ -178,7 +178,7 @@ function renderPlayer(color, me, player) {
   context.save();
   context.translate(canvasX, canvasY);
   // the svg file point to North, so we need to rotate Math.PI/2 to bring it to angle 0 first.
-  context.rotate(Math.PI/2 - direction);  //  degree to angle in radians: angle = degree * Math.PI / 180;
+  context.rotate(Math.PI/2 - fireDirection);  //  degree to angle in radians: angle = degree * Math.PI / 180;
   context.drawImage(
     color == 'blue'? getAsset('ship-blue.svg') : getAsset('ship-red.svg'),
     -PLAYER_RADIUS,

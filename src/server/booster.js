@@ -30,6 +30,15 @@ class Booster extends ObjectClass {
     // collision
     return 0b11;
   }
+
+  serializeForUpdate() {
+    return {
+      ...(super.serializeForUpdate()),
+      direction: this.direction,
+      hp: this.hp,
+      level: this.level,
+    };
+  }
 }
 
 module.exports = Bullet;

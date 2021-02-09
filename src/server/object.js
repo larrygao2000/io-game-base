@@ -15,6 +15,13 @@ class Object {
 
     this.type = 0;
 
+    this.hp_max = 1;
+    this.hp = 1
+    this.hp_recover = 0;
+    this.hp_recover_rate = 0;
+    this.lost_hp = 0;
+    this.lost_hp_per_update = 2;
+
     CollisionMap.addObject(this);
   }
 
@@ -27,6 +34,26 @@ class Object {
     this.y -= dt * this.speed * Math.sin(this.direction);
 
     CollisionMap.updateObject(this);
+
+    if (this.hp < this.hp_max) {
+      this.hp_recover -= dt;
+      if (this.hp_recover <= 0) {
+        this.hp ++;
+        if (this.hp > this.hp_max) this.hp = this.hp_max;
+        this.hp_recover = this.hp_recover_rate;
+      }
+    }
+
+    if (this.lost_hp > 0) {
+      if (this.lost_hp <= this.lost_hp_per_update) {
+        this.hp -= this.lost_hp;
+        this.lost_hp = 0;
+      } else {
+        this.hp -= this.lost_hp_per_update;
+        this.lost_hp -= this.lost_hp_per_update;
+      }
+    }
+
   }
 
   collision(obj) {

@@ -24,74 +24,61 @@ class Player extends ObjectClass {
     } else {
       this.group = id;
     }
-    this.hp = Constants.PLAYER_MAX_HP;
+
+    this.hp_max = Constants.PLAYER_MAX_HP;
+    this.hp = this.hp_max;
     this.hp_recover = 1;
+    this.hp_recover_rate = Constants.PLAYER_HP_RECOVERY_RATE;
+    this.lost_hp = 0;
+    this.lost_hp_per_update = 2;
+
+    this.max_speed = Constants.PLAYER_SPEED;
+    this.speed = 0;
+    this.fireDirection = this.direction;
+
     this.fireCooldownCount = 0;
     this.fireCooldown = Constants.PLAYER_FIRE_COOLDOWN;
     this.score = 0;
     this.bullets = 0;
     this.autofire = false;
-    this.move = 0;
     this.isBot = false;
     this.shieldTime = 5; // Player will be shielded damage for 5 seconds
     this.canvasWidth = Constants.MAP_SIZE / 4;
     this.canvasHeight = Constants.MAP_SIZE / 4;
     this.collisionCooldown = Constants.PLAYER_COLLISION_COOLDOWN;
     this.type = 20;
-    this.lost_hp = 0;
-    this.lost_hp_per_update = 2;
   }
 
   restart() {
-    this.hp = Constants.PLAYER_MAX_HP;
+    this.hp = this.hp_max;
     this.hp_recover = 1;
     this.fireCooldownCount = 0;
     this.score = 0;
     this.bullets = 0;
-    this.move = 0;
+    this.speed = 0;
   }
 
   // Returns a newly created bullet, or null.
   update(dt) {
-    // We are not going to move automatically
-    // super.update(dt);
+
+    super.update(dt);
+
+    // Make sure the player stays in bounds
+    // please note this will not change the mapX / mapY
+    this.x = Math.max(0, Math.min(Constants.MAP_SIZE, this.x));
+    this.y = Math.max(0, Math.min(Constants.MAP_SIZE, this.y));
 
     if (this.shieldTime > 0) this.shieldTime -= dt;
 
-    this.x += dt * Constants.PLAYER_SPEED * playermovedir[this.move][0];
-    this.y += dt * Constants.PLAYER_SPEED * playermovedir[this.move][1];
-
     // Update score
     this.score += dt * Constants.SCORE_PER_SECOND;
-
-    // Make sure the player stays in bounds
-    this.x = Math.max(0, Math.min(Constants.MAP_SIZE, this.x));
-    this.y = Math.max(0, Math.min(Constants.MAP_SIZE, this.y));
- 
-    CollisionMap.updateObject(this);
-
-    this.hp_recover -= dt;
-    if (this.hp_recover <= 0) {
-      if (this.hp < Constants.PLAYER_MAX_HP) this.hp ++;
-      this.hp_recover += Constants.PLAYER_HP_RECOVERY_RATE;
-    }
-
-    if (this.lost_hp > 0) {
-      if (this.lost_hp <= this.lost_hp_per_update) {
-        this.hp -= this.lost_hp;
-        this.lost_hp = 0;
-      } else {
-        this.hp -= this.lost_hp_per_update;
-        this.lost_hp -= this.lost_hp_per_update;
-      }
-    }
 
     // Fire a bullet, if needed
     this.fireCooldownCount -= dt;
     if (this.fireCooldownCount <= 0 && this.autofire || this.bullets > 0) {
       this.fireCooldownCount += this.fireCooldown;
       this.bullets--;
-      new Bullet(this, this.x, this.y, this.direction);
+      new Bullet(this, this.x, this.y, this.fireDirection);
     }
 
     if (this.collisionCooldown > 0) this.collisionCooldown -= dt;
@@ -154,12 +141,22 @@ class Player extends ObjectClass {
     return 0b01;
   }
 
+  setMoveDirection(speed, dir) {
+    this.speed = speed;
+    super.setDirection(dir);
+  }
+
   setMoveDirection(dir) {
-    this.move = dir;
+    if (dir == 0) {
+      this.speed = 0;
+    } else {
+      this.speed = this.max_speed;
+      super.setDirection( (dir - 1) * Math.PI / 4 );
+    }
   }
 
   setFireDirection(dir) {
-    super.setDirection(dir);
+    this.fireDirection = dir;
   }
 
   toggle(tog) {
@@ -224,7 +221,7 @@ class Player extends ObjectClass {
   serializeForUpdate() {
     return {
       ...(super.serializeForUpdate()),
-      direction: this.direction,
+      fireDirection: this.fireDirection,
       username: this.username,
       hp: this.hp,
       shieldTime: this.shieldTime,
