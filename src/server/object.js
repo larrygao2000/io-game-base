@@ -1,4 +1,5 @@
 const CollisionMap = require('./collisions');
+const Constants = require('../shared/constants');
 
 class Object {
   constructor(id, x, y, dir, speed, radius) {
@@ -31,12 +32,11 @@ class Object {
 
   update(dt) {
 
-    if (this.speed > 0) {
-      this.x += dt * this.speed * Math.cos(this.direction);
-      this.y -= dt * this.speed * Math.sin(this.direction);
+    this.x += dt * this.speed * Math.cos(this.direction);
+    this.y -= dt * this.speed * Math.sin(this.direction);
 
-      CollisionMap.updateObject(this);
-    }
+    // Need to update the map even for static object, as the object might be moved due to collision bounce
+    CollisionMap.updateObject(this);
 
     if (this.hp_recover_rate > 0 && this.hp < this.hp_max) {
       this.hp_recover -= dt;
@@ -72,6 +72,29 @@ class Object {
   collision2(obj) {
     // do nothing
     return 0;
+  }
+
+  collision_bounceback(obj) {
+
+    const dist = this.radius + obj.radius - this.distanceTo(obj);
+    if (dist < 0) return false;
+
+    // bounce the players back
+    if (this.x != obj.x || this.y != obj.y) {
+      const dir = Math.atan2(obj.y - this.y, this.x - obj.x);
+      const x = (dist + 1) * Math.cos(dir) / 2;
+      const y = (dist + 1) * Math.sin(dir) / 2;
+
+      // this is called from applyCollision which depends on collision map
+      // so we just set to new position -- collision mapX/mapY will be updated in next update(dt) call
+
+      this.x = Math.max(0, Math.min(Constants.MAP_SIZE, this.x + x));
+      this.y = Math.max(0, Math.min(Constants.MAP_SIZE, this.y - y));
+
+      obj.x = Math.max(0, Math.min(Constants.MAP_SIZE, obj.x - x));
+      obj.y = Math.max(0, Math.min(Constants.MAP_SIZE, obj.y + y));
+    }
+    return true;
   }
   
   remove() {

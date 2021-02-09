@@ -174,6 +174,7 @@ class Game {
       others: objUpdates.nearbyPlayers.map(p => p.serializeForUpdate()),
       myteambullets: objUpdates.myteamNearbyBullets.map(b => b.serializeForUpdate()),
       otherbullets: objUpdates.otherNearbyBullets.map(b => b.serializeForUpdate()),
+      boosters: objUpdates.boosters.map(b => b.serializeForUpdate()),
       smallmap: smallmap,
       leaderboard,
     };

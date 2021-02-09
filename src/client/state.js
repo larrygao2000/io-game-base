@@ -70,6 +70,7 @@ export function getCurrentState() {
       others: interpolateObjectArray(baseUpdate.others, next.others, ratio),
       myteambullets: interpolateObjectArray(baseUpdate.myteambullets, next.myteambullets, ratio),
       otherbullets: interpolateObjectArray(baseUpdate.otherbullets, next.otherbullets, ratio),
+      boosters: interpolateObjectArray(baseUpdate.boosters, next.boosters, ratio),
       smallmap: baseUpdate.smallmap, // no need to interpolate the small map, it is too small to notice
     };
   }

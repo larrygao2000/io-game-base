@@ -1,5 +1,6 @@
 const ObjectClass = require('./object');
 const Bullet = require('./bullet');
+const Booster = require('./booster');
 const Constants = require('../shared/constants');
 const CollisionMap = require('./collisions');
 
@@ -11,6 +12,8 @@ const playermovedir=[ [0,0],
                       [0, -1], [-1/Math.sqrt(2), -1/Math.sqrt(2)],
                       [-1,0], [-1/Math.sqrt(2), 1/Math.sqrt(2)],
                       [0,1], [1/Math.sqrt(2), 1/Math.sqrt(2)]];
+
+let total_player_died = 0;
 class Player extends ObjectClass {
   constructor(id, username, x, y) {
     super(id, x, y, Math.random() * 2 * Math.PI, Constants.PLAYER_SPEED, Constants.PLAYER_RADIUS);
@@ -47,6 +50,17 @@ class Player extends ObjectClass {
     this.canvasHeight = Constants.MAP_SIZE / 4;
     this.collisionCooldown = Constants.PLAYER_COLLISION_COOLDOWN;
     this.type = 20;
+
+    this.boosters = [];
+  }
+
+  remove() {
+    super.remove();
+    total_player_died ++;
+
+    if (total_player_died % 10 == 0) {
+      new Booster(Constants.MAP_SIZE * (0.1 + Math.random() * 0.8), Constants.MAP_SIZE * (0.1 + Math.random() * 0.8), 0);
+    }
   }
 
   restart() {
@@ -91,8 +105,7 @@ class Player extends ObjectClass {
       // we should not use group here -- player cannot fly over player, so need to detect collision
       if (this.id == obj.id) return 0;
 
-      const dist = this.radius + obj.radius - this.distanceTo(obj);
-      if (dist < 0) return 0;
+      if (!this.collision_bounceback(obj)) return 0;
 
       // player PK
 
@@ -101,22 +114,6 @@ class Player extends ObjectClass {
         // only take damage if they are not in the same group
         this.takeCollisionDamage(collisiondamage);
         obj.takeCollisionDamage(collisiondamage);
-      }
-
-      // bounce the players back
-      if (this.x != obj.x || this.y != obj.y) {
-        const dir = Math.atan2(obj.y - this.y, this.x - obj.x);
-        const x = (dist + 1) * Math.cos(dir) / 2;
-        const y = (dist + 1) * Math.sin(dir) / 2;
-
-        // this is called from applyCollision which depends on collision map
-        // so we just set to new position -- collision mapX/mapY will be updated in next update(dt) call
-
-        this.x = Math.max(0, Math.min(Constants.MAP_SIZE, this.x + x));
-        this.y = Math.max(0, Math.min(Constants.MAP_SIZE, this.y - y));
-
-        obj.x = Math.max(0, Math.min(Constants.MAP_SIZE, obj.x - x));
-        obj.y = Math.max(0, Math.min(Constants.MAP_SIZE, obj.y + y));
       }
 
       return 0

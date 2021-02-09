@@ -12,8 +12,7 @@ module.exports = Object.freeze({
   PLAYER_COLLISION_COOLDOWN: 0.9,
 
   B_TRI_RADIUS: 15,
-  B_TRI_MAX_HP: 100,
-  B_TRI_BULLET_DAMAGE: 1,
+  B_TRI_MAX_HP: 1000,
   B_TRI_RARE: 10,
 
   SCORE_BULLET_HIT: 10,

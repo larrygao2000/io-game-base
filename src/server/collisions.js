@@ -251,6 +251,7 @@ function getObjectUpdates(player) {
     let myteamNearbyPlayers = [];
     let otherNearbyBullets = [];
     let myteamNearbyBullets = [];
+    let boosters = [];
     for (let x = mapX1; x <= mapX2; x++) {
       for (let y = mapY1; y <= mapY2; y++) {
         for (let i = 1; i <= objectMap[x][y][0]; i++) {
@@ -269,6 +270,9 @@ function getObjectUpdates(player) {
             } else if (obj.id != player.id) {
               myteamNearbyPlayers.push(obj);
             }
+          } else {
+            // boosters
+            boosters.push(obj);
           }
         }
       }
@@ -277,7 +281,7 @@ function getObjectUpdates(player) {
 //    if (c > 10)
 //    console.log("for player:" + player.username + " obj:" + c + " hx:" + halfw + " hy:" + halfh + " cw:" + player.canvasWidth + " cy:" + player.canvasHeight);
  
-    return {myteamNearbyPlayers, nearbyPlayers, otherNearbyBullets, myteamNearbyBullets};
+    return {myteamNearbyPlayers, nearbyPlayers, otherNearbyBullets, myteamNearbyBullets, boosters};
 }
 
 module.exports = {

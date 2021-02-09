@@ -8,7 +8,7 @@ import { initKeymap } from "./input";
 
 const Constants = require('../shared/constants');
 
-const { PLAYER_RADIUS, PLAYER_MAX_HP, BULLET_RADIUS, MAP_SIZE, MAP_GRID_SIZE, SMAP_SIZE, CLIENT_UPDATE_PER_SECOND } = Constants;
+const { PLAYER_RADIUS, PLAYER_MAX_HP, BULLET_RADIUS, MAP_SIZE, MAP_GRID_SIZE, SMAP_SIZE, CLIENT_UPDATE_PER_SECOND, B_TRI_RADIUS } = Constants;
 
 // Get the canvas graphics context
 const canvas = document.getElementById('game-canvas');
@@ -43,7 +43,7 @@ canvas.onselectstart = function(e) {
 
 function render() {
 
-  const { me, myteam, others, myteambullets, otherbullets, smallmap} = getCurrentState();
+  const { me, myteam, others, myteambullets, otherbullets, boosters, smallmap} = getCurrentState();
   if (!me) {
     return;
   }
@@ -98,6 +98,8 @@ function render() {
   // Draw all bullets
   myteambullets.forEach(renderBullet.bind(null, 'blue', me));
   otherbullets.forEach(renderBullet.bind(null, 'red', me));
+
+  boosters.forEach(renderBooster.bind(null, 'cyan', me));
 
   // Draw all players
   renderPlayer('blue', me, me);
@@ -222,11 +224,53 @@ function renderPlayer(color, me, player) {
   context.fillText(player.score, canvasX - PLAYER_RADIUS,canvasY - PLAYER_RADIUS - 12);
 }
 
+function renderBooster(color, me, booster) {
+  const { x, y, direction, hp } = booster;
+  const canvasX = canvas.width / 2 + x - me.x;
+  const canvasY = canvas.height / 2 + y - me.y;
+  if (canvasX < -B_TRI_RADIUS || canvasY < -B_TRI_RADIUS || canvasX > canvas.width || canvasY > canvas.height) return;
+
+  context.save();
+  context.translate(canvasX, canvasY);
+  context.rotate(direction);  //  degree to angle in radians: angle = degree * Math.PI / 180;
+
+  const y2 = B_TRI_RADIUS * Math.sin(Math.PI / 6); // 30 degree
+  const x2 = B_TRI_RADIUS * Math.cos(Math.PI / 6);
+
+  context.beginPath();
+  context.moveTo(0, -B_TRI_RADIUS);
+  context.lineTo(-x2, y2);
+  context.lineTo(x2, y2);
+  context.closePath();
+  context.fillStyle = color;
+  context.fill();
+
+  context.restore();
+
+  // Draw health bar
+  context.fillStyle = 'white';
+  context.fillRect(
+    canvasX - B_TRI_RADIUS,
+    canvasY + B_TRI_RADIUS + 8,
+    B_TRI_RADIUS * 2,
+    2,
+  );
+
+  context.fillStyle = 'red';
+  context.fillRect(
+    canvasX - B_TRI_RADIUS + B_TRI_RADIUS * 2 * hp / 1000,
+    canvasY + B_TRI_RADIUS + 8,
+    B_TRI_RADIUS * 2 * (1 - hp / 1000),
+    2,
+  );
+
+}
+
 function renderBullet(color, me, bullet) {
   const { x, y } = bullet;
   const canvasX = canvas.width / 2 + x - me.x;
   const canvasY = canvas.height / 2 + y - me.y;
-  if (canvasX < -PLAYER_RADIUS || canvasY < -PLAYER_RADIUS || canvasX > canvas.width || canvasY > canvas.height) return;
+  if (canvasX < -BULLET_RADIUS || canvasY < -BULLET_RADIUS || canvasX > canvas.width || canvasY > canvas.height) return;
 
   context.drawImage(
     color == 'blue'? getAsset('bullet-blue.svg') : getAsset('bullet-red.svg'),
