@@ -106,9 +106,9 @@ class Player extends ObjectClass {
 
     if (this.collisionCooldown > 0) this.collisionCooldown -= dt;
 
-    if (this.hp <= 0 && this.lastHitBy) {
+    if (this.hp <= 0 && this.lastHitBy && this.lastHitBy.onDealtKill) {
       // this player is killed by lastHitBy
-      this.lastHitBy.onDealtKill();
+      this.lastHitBy.onDealtKill(this);
     }
   }
 
@@ -126,8 +126,8 @@ class Player extends ObjectClass {
       const collisiondamage = Math.min(this.hp, Math.min(obj.hp, Constants.COLLISION_DAMAGE));
       if (this.group != obj.group) {
         // only take damage if they are not in the same group
-        this.takeCollisionDamage(collisiondamage);
-        obj.takeCollisionDamage(collisiondamage);
+        this.takeCollisionDamage(obj, collisiondamage);
+        obj.takeCollisionDamage(this, collisiondamage);
       }
 
       return 0
@@ -213,7 +213,7 @@ class Player extends ObjectClass {
     }
   }
 
-  takeCollisionDamage(damage) {
+  takeCollisionDamage(obj, damage) {
     if (this.collisionCooldown < 0) {
       if ((this.shieldTime < 0) && (!this.immortal)) {
 	this.lost_hp += damage;
@@ -221,6 +221,8 @@ class Player extends ObjectClass {
         // we do 40 updates per second, so this will allow the HP removed in half second
         this.lost_hp_per_update = this.lost_hp / 20;
         if (this.lost_hp_per_update < 1) this.lost_hp_per_update = 1;
+
+        this.lastHitBy = obj;
       }
       this.collisionCooldown = Constants.PLAYER_COLLISION_COOLDOWN;
     }
@@ -231,7 +233,7 @@ class Player extends ObjectClass {
     obj.lastHitBy = this;
   }
 
-  onDealtKill() {
+  onDealtKill(obj) {
     this.score += Constants.SCORE_KILL;
   }
 

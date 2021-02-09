@@ -24,6 +24,11 @@ class Booster extends ObjectClass {
     super.update(dt);
 
     if (this.hp <= 0) {
+      if (this.lastHitBy) {
+        // this player is killed by lastHitBy
+        this.creditPlayer(this.lastHitBy);
+      }
+
       this.remove();
       return;
     }
@@ -31,6 +36,17 @@ class Booster extends ObjectClass {
     // update direction
     this.direction -= 3.1415926*2 / 100; // make a round in 10 seconds
     if (this.collisionCooldown > 0) this.collisionCooldown -= dt;
+  }
+
+  creditPlayer(player) {
+    if (!player.boosters[this.level]) {
+      player.boosters[this.level] = 0;
+    }
+    if (player.boosters[this.level] < 2) {
+      player.max_speed *= 2;
+    }
+    player.boosters[this.level]++;
+    player.score += (this.level + 1) * 100;
   }
 
   collision2(obj) {
@@ -43,18 +59,7 @@ class Booster extends ObjectClass {
 
       this.takeBulletDamage();
 
-      if (this.hp <= this.lost_hp) {
-        if (obj.parent) {
-          if (!obj.parent.boosters[this.level]) {
-            obj.parent.boosters[this.level] = 0;
-          }
-          if (obj.parent.boosters[this.level] < 2) {
-            obj.parent.max_speed *= 2;
-          }
-          obj.parent.boosters[this.level]++;
-          obj.parent.score += 500;
-        }
-      }
+      this.lastHitBy = obj.parent;
 
       return 0b01;
     }
@@ -69,8 +74,8 @@ class Booster extends ObjectClass {
       const collisiondamage = Math.min(this.hp, Math.min(obj.hp, Constants.COLLISION_DAMAGE));
       if (this.group != obj.group) {
         // only take damage if they are not in the same group
-        this.takeCollisionDamage(collisiondamage);
-        obj.takeCollisionDamage(collisiondamage);
+        this.takeCollisionDamage(obj, collisiondamage);
+        obj.takeCollisionDamage(this, collisiondamage);
       }
 
       return 0
@@ -87,7 +92,7 @@ class Booster extends ObjectClass {
     if (this.lost_hp_per_update < 1) this.lost_hp_per_update = 1;
   }
 
-  takeCollisionDamage(damage) {
+  takeCollisionDamage(obj, damage) {
     if (this.collisionCooldown < 0) {
       this.lost_hp += damage;
 
@@ -95,6 +100,9 @@ class Booster extends ObjectClass {
       this.lost_hp_per_update = this.lost_hp / 20;
       if (this.lost_hp_per_update < 1) this.lost_hp_per_update = 1;
       this.collisionCooldown = Constants.PLAYER_COLLISION_COOLDOWN;
+
+      this.lastHitBy = obj;
+console.log("booster is hit by " + obj.username);
     } 
   }
 
