@@ -118,9 +118,9 @@ class Player extends ObjectClass {
 
       // bounce the players back
       if (this.x != obj.x || this.y != obj.y) {
-        const dir = Math.atan2(this.x - obj.x, obj.y - this.y);
-        const x = (dist + 1) * Math.sin(dir) / 2;
-        const y = (dist + 1) * Math.cos(dir) / 2;
+        const dir = Math.atan2(obj.y - this.y, this.x - obj.x);
+        const x = (dist + 1) * Math.cos(dir) / 2;
+        const y = (dist + 1) * Math.sin(dir) / 2;
 
         // this is called from applyCollision which depends on collision map
         // so we just set to new position -- collision mapX/mapY will be updated in next update(dt) call

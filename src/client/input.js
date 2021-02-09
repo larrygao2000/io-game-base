@@ -108,7 +108,7 @@ function handleKeyChangeMove() {
 }
 
 function handleFireDirection(x, y) {
-  const dir = Math.atan2(x - window.innerWidth / 2, window.innerHeight / 2 - y);
+  const dir = Math.atan2(window.innerHeight / 2 - y, x - window.innerWidth / 2);
   updateFireDirection(dir);
 }
 

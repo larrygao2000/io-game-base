@@ -177,7 +177,8 @@ function renderPlayer(color, me, player) {
   // Draw ship
   context.save();
   context.translate(canvasX, canvasY);
-  context.rotate(direction);
+  // the svg file point to North, so we need to rotate Math.PI/2 to bring it to angle 0 first.
+  context.rotate(Math.PI/2 - direction);  //  degree to angle in radians: angle = degree * Math.PI / 180;
   context.drawImage(
     color == 'blue'? getAsset('ship-blue.svg') : getAsset('ship-red.svg'),
     -PLAYER_RADIUS,

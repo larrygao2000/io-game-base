@@ -28,7 +28,7 @@ class Robot {
 
     if (this.player.lockPlayer) {
       if (Math.random() < 0.1) {
-        this.player.setDirection(Math.atan2(this.player.lockPlayer.x - this.player.x, this.player.y - this.player.lockPlayer.y));
+        this.player.setDirection(Math.atan2(this.player.y - this.player.lockPlayer.y, this.player.lockPlayer.x - this.player.x));
         this.player.autofire = true;
         if (this.player.distanceTo(this.player.lockPlayer) > Constants.PLAYER_RADIUS * 20) {
           // unlock

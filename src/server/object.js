@@ -23,8 +23,8 @@ class Object {
   }
 
   update(dt) {
-    this.x += dt * this.speed * Math.sin(this.direction);
-    this.y -= dt * this.speed * Math.cos(this.direction);
+    this.x += dt * this.speed * Math.cos(this.direction);
+    this.y -= dt * this.speed * Math.sin(this.direction);
 
     CollisionMap.updateObject(this);
   }
