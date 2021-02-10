@@ -2,7 +2,6 @@ module.exports = Object.freeze({
   PLAYER_RADIUS: 20,
   PLAYER_MAX_HP: 100,
   PLAYER_SPEED: 100,
-  PLAYER_SPEED_CAP: 400,
   PLAYER_FIRE_COOLDOWN: 0.5,
   PLAYER_HP_RECOVERY_RATE: 1,
 
@@ -19,16 +18,19 @@ module.exports = Object.freeze({
   BOOSTER_COLOR:      ['#00FFFF', '#00FFFF', '#00FFFF','#00FFFF','#7FFFD4', '#7FFFD4','#7FFFD4','#66CDAA','#66CDAA'],
   BOOSTER_RARE:       [10,   25,   50,   100,   250,   500,   1000,   10000,   25000,  ],
   BOOSTER_MAX_HP:     [1000, 2500, 5000, 10000, 25000, 50000, 100000, 1000000, 2500000,],
+//  BOOSTER_MAX_HP:     [5,5,5,5,5,5,5,5,5,5,5,],
   BOOSTER_TTL:        [300,  600,  1800, 3600,  7200,  36000, 86400,  172800,  172800, ],  // 172800 seconds: 2 days
   BOOSTER_MULTIPLIER: {
-	      SPEED:  [2,    1,    1,    1,     1,     1,     1,      1,       2],
-              HP:     [1,    2,    2,    1,     1,     1,     1,      1,       2],
-              BDAMAGE:[1,    1,    1,    2,     1,     1,     1,      1,       2],
-              BTSPEED:[1,    1,    1,    1,     2,     1,     1,      1,       2],
-              BTDAMAGE:[1,   1,    1,    1,     1,     2,     1,      1,       2],
-              BTFREQ: [1,    1,    1,    1,     1,     1,     0.2,    0.5,     0.5],
+	      SPEED:  [1,    0,    0,    0,     0,     0,     0,      0,       1],
+              HP:     [0,    1,    0,    0,     0,     0,     0,      0,       1],
+              HPRECOVERY:[0, 0,    1,    0,     0,     0,     0,      0,       1],
+              BDAMAGE:[0,    0,    0,    1,     0,     0,     0,      0,       1],
+              BTSPEED:[0,    0,    0,    0,     1,     0,     0,      0,       1],
+              BTDAMAGE:[0,   0,    0,    0,     0,     1,     0,      0,       1],
+              BTFREQ: [0,    0,    0,    0,     0,     0,     1,      2,       1],
               SCORE:  [100,  250,  500,  1000,  2500,  5000,  10000,  100000,  250000,],
            },
+  BOOSTER_SPEED_CAP: 4,
 
   SCORE_BULLET_HIT: 10,
   SCORE_KILL: 100,
@@ -40,8 +42,8 @@ module.exports = Object.freeze({
 
   MAGIC_WORD: '#f0rever',
 
-  NUM_BOTS: 100,
-  MAP_SIZE: 6000,
+  NUM_BOTS: 0,
+  MAP_SIZE: 1000,
   MAP_GRID_SIZE: 50,
   MAP_OBJ_GRID_SIZE: 50,
   MSG_TYPES: {

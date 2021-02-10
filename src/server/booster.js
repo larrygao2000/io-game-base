@@ -49,19 +49,36 @@ class Booster extends ObjectClass {
 
   creditPlayer(player) {
 
-    if (Constants.BOOSTER_MULTIPLIER['SPEED'][this.level] != 1) {
-      player.max_speed *= Constants.BOOSTER_MULTIPLIER['SPEED'][this.level];
-      if (player.max_speed > Constants.PLAYER_SPEED_CAP) {
-        player.max_speed = Constants.PLAYER_SPEED_CAP;
-      }
+    if (player.max_speed_multi < Constants.BOOSTER_SPEED_CAP) {
+      player.max_speed_multi += Constants.BOOSTER_MULTIPLIER['SPEED'][this.level];
+console.log("speed multi:" + player.max_speed_multi);
     }
 
-    if (Constants.BOOSTER_MULTIPLIER['HP'][this.level] != 1) {
-      player.hp_max *= Constants.BOOSTER_MULTIPLIER['HP'][this.level];
+    if (Constants.BOOSTER_MULTIPLIER['HP'][this.level] != 0) {
+      player.hp_max_multi += Constants.BOOSTER_MULTIPLIER['HP'][this.level];
+      player.hp_max = player.hp_max_base * player.hp_max_multi;
       player.hp = player.hp_max;
+console.log("hp multi:" + player.hp_max_multi + " max hp:" + player.hp_max);
     }
 
-    player.score += (this.level + 1) * 100;
+    if (Constants.BOOSTER_MULTIPLIER['HPRECOVERY'][this.level] != 0 && player.hp_recovery_multi < 60)
+      player.hp_recovery_multi += Constants.BOOSTER_MULTIPLIER['HPRECOVERY'][this.level];
+console.log("hp recovery multi:" + player.hp_recovery_multi);
+
+    player.bodydamage_multi += Constants.BOOSTER_MULTIPLIER['BDAMAGE'][this.level];
+console.log("hp body damage multi:" + player.bodydamage_multi);
+   
+    if (player.bullet_speed_multi < Constants.BOOSTER_SPEED_CAP)
+      player.bullet_speed_multi += Constants.BOOSTER_MULTIPLIER['BTSPEED'][this.level];
+console.log("bullet speed multi:" + player.bullet_speed_multi);
+
+    player.bullet_damage_multi += Constants.BOOSTER_MULTIPLIER['BTDAMAGE'][this.level];
+console.log("bullet damage multi:" + player.bullet_damage_multi);
+
+    player.firefreq += Constants.BOOSTER_MULTIPLIER['BTFREQ'][this.level];
+console.log("bullet fire multi:" + player.firefreq);
+
+    player.score += Constants.BOOSTER_MULTIPLIER['SCORE'][this.level];
   }
 
   collision2(obj) {
@@ -70,9 +87,9 @@ class Booster extends ObjectClass {
     if (this.distanceTo(obj) > this.radius + obj.radius) return 0;
 
     if (obj.getType() < 20) {
-      // bullet
+      // shot by bullet
 
-      this.takeBulletDamage();
+      this.takeBulletDamage(obj);
 
       this.lastHitBy = obj.parent;
 
@@ -89,8 +106,8 @@ class Booster extends ObjectClass {
       const collisiondamage = Math.min(this.hp, Math.min(obj.hp, Constants.COLLISION_DAMAGE));
       if (this.group != obj.group) {
         // only take damage if they are not in the same group
-        this.takeCollisionDamage(obj, collisiondamage);
-        obj.takeCollisionDamage(this, collisiondamage);
+        this.takeCollisionDamage(obj, collisiondamage * obj.bodydamage_multi);
+        obj.takeCollisionDamage(this, collisiondamage * this.bodydamage_multi);
       }
 
       return 0
@@ -104,8 +121,8 @@ class Booster extends ObjectClass {
     return 0b00;
   }
 
-  takeBulletDamage() {
-    this.lost_hp += Constants.BULLET_DAMAGE;
+  takeBulletDamage(obj) {
+    this.lost_hp += obj.damage;
 
     // we do 40 updates per second, so this will allow the HP removed in half second
     this.lost_hp_per_update = this.lost_hp / 20;

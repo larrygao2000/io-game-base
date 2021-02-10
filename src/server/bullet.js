@@ -3,7 +3,7 @@ const ObjectClass = require('./object');
 const Constants = require('../shared/constants');
 
 class Bullet extends ObjectClass {
-  constructor(parent, x, y, dir) {
+  constructor(parent, x, y, dir, speed_multi, damage_multi) {
     super(shortid(), x, y, dir, 0, Constants.BULLET_RADIUS);
     this.parent = parent;
     this.parentID = parent.id;
@@ -11,10 +11,12 @@ class Bullet extends ObjectClass {
     this.liveTime = 5; // 5 seconds
     this.type = 10;
 
-    this.pre_v = Constants.BULLET_SPEED;
+    this.pre_v = Constants.BULLET_SPEED * speed_multi;
     this.pre_dir = dir;
-    this.max_speed = Constants.BULLET_SPEED / 10; // lost one 10th of the speed first second
+    this.max_speed = Constants.BULLET_SPEED * speed_multi / 10; // lost one 10th of the speed first second
     this.max_speed_updated = 0;
+   
+    this.damage = Constants.BULLET_DAMAGE * damage_multi;
   }
 
   // Returns true if the bullet should be destroyed
@@ -24,7 +26,7 @@ class Bullet extends ObjectClass {
     this.liveTime -= dt;
 
     if (this.max_speed_updated == 0 && this.liveTime < 4) {
-      this.max_speed = Constants.BULLET_SPEED / 5; // lost one 5th the 2nd second.
+      this.max_speed *= 2; // lost one 5th the 2nd second.
       this.max_speed_updated ++;
     } else if (this.max_speed_updated == 1 && this.liveTime < 3) {
       this.max_speed /= 3;  // then lost 1/3 of its current speed every second until it drops to 0

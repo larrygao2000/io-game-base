@@ -28,7 +28,8 @@ class Player extends ObjectClass {
       this.group = id;
     }
 
-    this.hp_max = Constants.PLAYER_MAX_HP;
+    this.hp_max_base = Constants.PLAYER_MAX_HP;
+    this.hp_max = this.hp_max_base;
     this.hp = this.hp_max;
     this.hp_recover = 1;
     this.hp_recover_rate = Constants.PLAYER_HP_RECOVERY_RATE;
@@ -41,6 +42,7 @@ class Player extends ObjectClass {
 
     this.fireCooldownCount = 0;
     this.fireCooldown = Constants.PLAYER_FIRE_COOLDOWN;
+    this.firefreq = 1;
     this.score = 0;
     this.bullets = 0;
     this.autofire = false;
@@ -50,6 +52,9 @@ class Player extends ObjectClass {
     this.canvasHeight = Constants.MAP_SIZE / 4;
     this.collisionCooldown = Constants.PLAYER_COLLISION_COOLDOWN;
     this.type = 20;
+
+    this.bullet_speed_multi = 1;
+    this.bullet_damage_multi = 1;
   }
 
   remove() {
@@ -62,6 +67,10 @@ class Player extends ObjectClass {
         break;
       }
     }
+
+   for (let level = Constants.BOOSTER_NUM_TYPES - 1; level >= 0; level --) 
+     new Booster(Constants.MAP_SIZE * (0.1 + Math.random() * 0.8), Constants.MAP_SIZE * (0.1 + Math.random() * 0.8), level);
+
   }
 
   restart() {
@@ -71,6 +80,7 @@ class Player extends ObjectClass {
     this.score /= 3;
     this.bullets = 0;
     this.speed = 0;
+    this.desire_speed = 0;
  
     CollisionMap.addObject(this);
   }
@@ -93,9 +103,9 @@ class Player extends ObjectClass {
     // Fire a bullet, if needed
     this.fireCooldownCount -= dt;
     if (this.fireCooldownCount <= 0 && this.autofire || this.bullets > 0) {
-      this.fireCooldownCount += this.fireCooldown;
+      this.fireCooldownCount += this.fireCooldown / this.firefreq;
       this.bullets--;
-      new Bullet(this, this.x, this.y, this.fireDirection);
+      new Bullet(this, this.x, this.y, this.fireDirection, this.bullet_speed_multi, this.bullet_damage_multi);
     }
 
     if (this.collisionCooldown > 0) this.collisionCooldown -= dt;
@@ -120,8 +130,8 @@ class Player extends ObjectClass {
       const collisiondamage = Math.min(this.hp, Math.min(obj.hp, Constants.COLLISION_DAMAGE));
       if (this.group != obj.group) {
         // only take damage if they are not in the same group
-        this.takeCollisionDamage(obj, collisiondamage);
-        obj.takeCollisionDamage(this, collisiondamage);
+        this.takeCollisionDamage(obj, collisiondamage * obj.bodydamage_multi);
+        obj.takeCollisionDamage(this, collisiondamage * this.bodydamage_multi);
       }
 
       return 0
@@ -131,9 +141,9 @@ class Player extends ObjectClass {
     if (this.group == obj.group ||
         this.distanceTo(obj) > this.radius + obj.radius) return 0;
 
-    // collision
+    // shot by bullet
 
-    this.takeBulletDamage();
+    this.takeBulletDamage(obj);
 
     if (obj.parent) {
       obj.parent.onDealtDamage(this);
@@ -151,7 +161,7 @@ class Player extends ObjectClass {
       this.pre_v = this.speed;
       this.pre_dir = this.direction;
     }
-    this.desire_speed = Math.min(speed, this.max_speed);
+    this.desire_speed = Math.min(speed, this.max_speed * this.max_speed_multi);
     this.speed = 0;
     super.setMoveDirection(dir);
   }
@@ -165,7 +175,7 @@ class Player extends ObjectClass {
     if (dir == 0) {
       this.desire_speed = 0;
     } else {
-      this.desire_speed = this.max_speed;
+      this.desire_speed = this.max_speed * this.max_speed_multi;
       super.setMoveDirection( (dir - 1) * Math.PI / 4 );
     }
   }
@@ -198,9 +208,9 @@ class Player extends ObjectClass {
     if (this.fireCooldownCount < 0) this.fireCooldownCount = 0;
   }
 
-  takeBulletDamage() {
+  takeBulletDamage(obj) {
     if ((this.shieldTime < 0) && (!this.immortal)) {
-      this.lost_hp += Constants.BULLET_DAMAGE;
+      this.lost_hp += obj.damage;
 
       // we do 40 updates per second, so this will allow the HP removed in half second
       this.lost_hp_per_update = this.lost_hp / 20;

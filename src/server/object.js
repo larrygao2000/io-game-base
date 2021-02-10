@@ -11,6 +11,7 @@ class Object {
     this.direction = dir;
     this.speed = speed;
     this.max_speed = speed;
+    this.max_speed_multi = 1;
     this.desire_speed = speed;
 
     this.pre_v = 0;
@@ -22,12 +23,18 @@ class Object {
 
     this.type = 0;
 
+    this.hp_max_base = 1;
+    this.hp_max_multi = 1;
     this.hp_max = 1;
     this.hp = 1
     this.hp_recover = 0;
     this.hp_recover_rate = 0;
     this.lost_hp = 0;
     this.lost_hp_per_update = 2;
+
+    this.bodydamage_multi = 1;
+
+    this.hp_recovery_multi = 1;
 
     CollisionMap.addObject(this);
   }
@@ -42,11 +49,11 @@ class Object {
       this.x += dt * this.pre_v * Math.cos(this.pre_dir);
       this.y -= dt * this.pre_v * Math.sin(this.pre_dir);
 
-      this.pre_v -= this.max_speed * dt;
+      this.pre_v -= this.max_speed * this.max_speed_multi * dt;
     }
 
     if (this.speed < this.desire_speed) {
-      this.speed += this.max_speed * dt;
+      this.speed += this.max_speed * this.max_speed_multi * dt;
       if (this.speed > this.desire_speed) this.speed = this.desire_speed;
     }
 
@@ -59,9 +66,9 @@ class Object {
     if (this.hp_recover_rate > 0 && this.hp < this.hp_max) {
       this.hp_recover -= dt;
       if (this.hp_recover <= 0) {
-        this.hp ++;
+        this.hp += 1;
         if (this.hp > this.hp_max) this.hp = this.hp_max;
-        this.hp_recover = this.hp_recover_rate;
+        this.hp_recover = this.hp_recover_rate / this.hp_recovery_multi;
       }
     }
 
