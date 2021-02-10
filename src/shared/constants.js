@@ -5,9 +5,10 @@ module.exports = Object.freeze({
   PLAYER_FIRE_COOLDOWN: 0.5,
   PLAYER_HP_RECOVERY_RATE: 1,
 
-  BULLET_RADIUS: 15,
+  BULLET_RADIUS: 10,
   BULLET_SPEED: 150,
   BULLET_DAMAGE: 10,
+
   COLLISION_DAMAGE: 50,
   PLAYER_COLLISION_COOLDOWN: 0.9,
 
@@ -27,7 +28,7 @@ module.exports = Object.freeze({
 
   NUM_BOTS: 100,
   MAP_SIZE: 6000,
-  MAP_GRID_SIZE: 100,
+  MAP_GRID_SIZE: 50,
   MAP_OBJ_GRID_SIZE: 50,
   MSG_TYPES: {
     JOIN_GAME: 'join_game',

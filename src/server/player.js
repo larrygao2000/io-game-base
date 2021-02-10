@@ -16,7 +16,7 @@ const playermovedir=[ [0,0],
 let total_player_died = 0;
 class Player extends ObjectClass {
   constructor(id, username, x, y) {
-    super(id, x, y, Math.random() * 2 * Math.PI, Constants.PLAYER_SPEED, Constants.PLAYER_RADIUS);
+    super(id, x, y, Math.random() * 2 * Math.PI, 0, Constants.PLAYER_RADIUS);
     const namesplit = username.split('@');
     this.username = namesplit[0];
     if (namesplit.length > 1) {
@@ -139,15 +139,25 @@ class Player extends ObjectClass {
   }
 
   setMoveDirection(speed, dir) {
-    this.speed = speed;
+    if (this.speed > this.pre_v) {
+      this.pre_v = this.speed;
+      this.pre_dir = this.direction;
+    }
+    this.desire_speed = Math.min(speed, this.max_speed);
+    this.speed = 0;
     super.setMoveDirection(dir);
   }
 
   setMoveDirection(dir) {
+    if (this.speed > this.pre_v) {
+      this.pre_v = this.speed;
+      this.pre_dir = this.direction;
+    }
+    this.speed = 0;
     if (dir == 0) {
-      this.speed = 0;
+      this.desire_speed = 0;
     } else {
-      this.speed = this.max_speed;
+      this.desire_speed = this.max_speed;
       super.setMoveDirection( (dir - 1) * Math.PI / 4 );
     }
   }

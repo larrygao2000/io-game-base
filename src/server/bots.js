@@ -56,27 +56,31 @@ class Robot {
         (d - this.ms) >  1000) {
 
       this.ms = d;
+      let move = -1;
 
       if (this.player.x == 0 || this.player.x == Constants.MAP_SIZE || this.player.y == 0 || this.player.y == Constants.MAP_SZIE) {
         if (Math.random() < 0.4) {
           if (this.player.x == 0) {
-            this.move = 1; // right
+            move = 1; // right
           } else if (this.player.x == Constants.MAP_SIZE) {
-            this.move = 5; // left
+            move = 5; // left
           } else if (this.player.y == 0) {
-            this.move = 7; // down
+            move = 7; // down
           } else {
-            this.move = 3; // up
+            move = 3; // up
           } 
         }
       } else if (Math.random() < 0.1) {
-	this.move = Math.floor(Math.random() * 10);
-        if (this.move > 8) this.move = 0; // range: 0 - 8
+	move = Math.floor(Math.random() * 10);
+        if (move > 8) move = 0; // range: 0 - 8
+      }
+
+      // tell game this bot wants to move
+      if (move >= 0 && this.move != move) {
+        this.player.setMoveDirection(move);
+        this.move = move;
       }
     }
-
-    // tell game this bot wants to move
-    this.player.setMoveDirection(this.move);
 
     // 20% of bots not fire
     if (Math.random() < 0.2) this.player.toggle('e');

@@ -6,9 +6,15 @@ class Object {
     this.id = id;
     this.x = x;
     this.y = y;
+    this.radius = radius;
+
     this.direction = dir;
     this.speed = speed;
-    this.radius = radius;
+    this.max_speed = speed;
+    this.desire_speed = speed;
+
+    this.pre_v = 0;
+    this.pre_dir = 0;
 
     this.mapX = -1;
     this.mapY = -1;
@@ -31,6 +37,18 @@ class Object {
   }
 
   update(dt) {
+
+    if (this.pre_v > 0) {
+      this.x += dt * this.pre_v * Math.cos(this.pre_dir);
+      this.y -= dt * this.pre_v * Math.sin(this.pre_dir);
+
+      this.pre_v -= this.max_speed * dt;
+    }
+
+    if (this.speed < this.desire_speed) {
+      this.speed += this.max_speed * dt;
+      if (this.speed > this.desire_speed) this.speed = this.desire_speed;
+    }
 
     this.x += dt * this.speed * Math.cos(this.direction);
     this.y -= dt * this.speed * Math.sin(this.direction);
