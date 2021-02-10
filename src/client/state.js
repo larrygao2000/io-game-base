@@ -102,14 +102,18 @@ function interpolateObjectArray(objects1, objects2, ratio) {
 // Determines the best way to rotate (cw or ccw) when interpolating a direction.
 // For example, when rotating from -3 radians to +3 radians, we should really rotate from
 // -3 radians to +3 - 2pi radians.
+// d1/d2: range from -Math.PI to Math.PI
+// Degree | Angle
+// 0:0  45:0.79 90:1.57 135:2.36 180:3.14  180.0001/-180:-3.14 225:-2.36 270/-90:-1.57 315/-45:-0.79 360:0
+// 0  0.79 1.57 2.36 3.14  -3.14 -2.36 -1.57 -0.79 0
 function interpolateDirection(d1, d2, ratio) {
   const absD = Math.abs(d2 - d1);
   if (absD >= Math.PI) {
     // The angle between the directions is large - we should rotate the other way
     if (d1 > d2) {
-      return d1 + (d2 + 2 * Math.PI - d1) * ratio;
+      return d1 + ((d2 + 2 * Math.PI) - d1) * ratio;
     } else {
-      return d1 - (d2 - 2 * Math.PI - d1) * ratio;
+      return d1 + (d2 - (d1 + 2 * Math.PI)) * ratio;
     }
   } else {
     // Normal interp
