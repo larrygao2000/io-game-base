@@ -52,6 +52,7 @@ function onKeyDown(e) {
     keydownMap[keyCode] = true;
 
     if (keyCode == 'Space') {
+      handleFireInput();
       updateFire('on');
     } else {
       handleKeyChangeMove();

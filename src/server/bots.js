@@ -33,7 +33,7 @@ class Robot {
         if (this.player.distanceTo(this.player.lockPlayer) > this.player.radius * 20) {
           // unlock
           this.player.lockPlayer = null;
-        } else if (this.player.distanceTo(this.player.lockPlayer) > this.player.radius * 3) this.player.setMoveDirection(this.player.lockPlayer.speed, this.player.lockPlayer.direction);
+        } else if (this.player.distanceTo(this.player.lockPlayer) > this.player.radius * 3) this.player.setMoveDirection(this.player.lockPlayer.desire_speed, this.player.lockPlayer.direction);
       }
       return;
     }
@@ -80,10 +80,10 @@ class Robot {
         this.player.setMoveDirection(move);
         this.move = move;
       }
-    }
 
-    // 20% of bots not fire
-    if (Math.random() < 0.2) this.player.toggle('e');
+      // 20% of bots not fire
+      if (Math.random() < 0.2) this.player.toggle('e');
+    }
   }
 }
 

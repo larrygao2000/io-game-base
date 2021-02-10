@@ -41,6 +41,7 @@ class Player extends ObjectClass {
 
     this.fireCooldownCount = 0;
     this.fireCooldown = Constants.PLAYER_FIRE_COOLDOWN;
+    this.fireInterval = Constants.PLAYER_FIRE_INTERVAL;
     this.score = 0;
     this.bullets = 0;
     this.autofire = false;
@@ -88,11 +89,19 @@ class Player extends ObjectClass {
     this.score += dt * Constants.SCORE_PER_SECOND;
 
     // Fire a bullet, if needed
-    this.fireCooldownCount -= dt;
-    if (this.fireCooldownCount <= 0 && this.autofire || this.bullets > 0) {
-      this.fireCooldownCount += this.fireCooldown;
-      this.bullets--;
-      new Bullet(this, this.x, this.y, this.fireDirection);
+    if (this.bullets > 0) {
+      this.fireInterval -= dt;
+      if (this.fireInterval < 0) {
+        new Bullet(this, this.x, this.y, this.fireDirection);
+        this.bullets--;
+        this.fireInterval = Constants.PLAYER_FIRE_INTERVAL;
+      }
+    } else if (this.autofire) {
+      this.fireCooldownCount -= dt;
+      if (this.fireCooldownCount <= 0) {
+        this.fireCooldownCount += this.fireCooldown;
+        this.bullets = 3;
+      }
     }
 
     if (this.collisionCooldown > 0) this.collisionCooldown -= dt;
@@ -169,7 +178,6 @@ class Player extends ObjectClass {
   toggle(tog) {
     if (tog == 'e') {
       this.autofire = ! this.autofire;
-      this.bullets = 0;
       if (this.fireCooldownCount < 0) this.fireCooldownCount = 0;
     }
   }
@@ -181,13 +189,12 @@ class Player extends ObjectClass {
   }
 
   openFire(start) {
-//    if (! this.autofire) {
-//      this.bullets ++;
-//    }
     if (start == 'once') {
        this.bullets ++;
     }
+
     this.autofire = (start == 'on');
+
     if (this.fireCooldownCount < 0) this.fireCooldownCount = 0;
   }
 
