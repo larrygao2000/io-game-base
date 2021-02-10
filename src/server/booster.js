@@ -43,7 +43,7 @@ class Booster extends ObjectClass {
 
       this.takeBulletDamage();
 
-      if (this.hp - this.lost_hp < 0) {
+      if (this.hp <= this.lost_hp) {
         if (obj.parent) {
           if (!obj.parent.boosters[this.level]) {
             obj.parent.boosters[this.level] = 0;
@@ -94,8 +94,8 @@ class Booster extends ObjectClass {
       // we do 40 updates per second, so this will allow the HP removed in half second
       this.lost_hp_per_update = this.lost_hp / 20;
       if (this.lost_hp_per_update < 1) this.lost_hp_per_update = 1;
-    }
-    this.collisionCooldown = Constants.PLAYER_COLLISION_COOLDOWN;
+      this.collisionCooldown = Constants.PLAYER_COLLISION_COOLDOWN;
+    } 
   }
 
   serializeForUpdate() {
