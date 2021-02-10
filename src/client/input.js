@@ -7,9 +7,11 @@ import { updateToggle } from './networking';
 
 let lastFireTime=(new Date()).getTime();
 let keydownMap = {};
+let firstMouseClick = true;
 
 export function initKeymap() {
   keydownMap = {};
+  firstMouseClick = true;
 }
 
 function handleFireInput() {
@@ -21,6 +23,10 @@ function handleFireInput() {
 }
 
 function onMouseClick(e) {
+  if (firstMouseClick) {
+    firstMouseClick = false;
+    return;
+  }
   handleFireInput();
 }
 
