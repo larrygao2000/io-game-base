@@ -4,17 +4,19 @@ const Constants = require('../shared/constants');
 
 class Booster extends ObjectClass {
   constructor(x, y, level) {
-    super(shortid(), x, y, 0, 0, Constants.B_TRI_RADIUS);
+    super(shortid(), x, y, 0, 0, Constants.BOOSTER_RADIUS[level]);
     this.level = level;
     this.type = 30;
     this.group = this.id; // no group
 
-    this.hp_max = Constants.B_TRI_MAX_HP;
+    this.hp_max = Constants.BOOSTER_MAX_HP[level];
     this.hp = this.hp_max;
     this.hp_recover = 0;
     this.hp_recover_rate = 0;
     this.lost_hp = 0;
     this.lost_hp_per_update = 2;
+
+    this.liveTime = Constants.BOOSTER_TTL[level];
 
     this.collisionCooldown = Constants.PLAYER_COLLISION_COOLDOWN;
   }
@@ -42,8 +44,12 @@ class Booster extends ObjectClass {
     if (!player.boosters[this.level]) {
       player.boosters[this.level] = 0;
     }
-    if (player.boosters[this.level] < 2) {
-      player.max_speed *= 2;
+    if (player.boosters[this.level] < Constants.BOOSTER_MAXCAPTURE[this.level]) {
+      player.max_speed *= Constants.BOOSTER_MULTIPLIER['SPEED'][this.level];
+      if (Constants.BOOSTER_MULTIPLIER['HP'][this.level] != 1) {
+        player.hp_max *= Constants.BOOSTER_MULTIPLIER['HP'][this.level];
+        player.hp = player.hp_max;
+      }
     }
     player.boosters[this.level]++;
     player.score += (this.level + 1) * 100;
@@ -90,6 +96,8 @@ class Booster extends ObjectClass {
     // we do 40 updates per second, so this will allow the HP removed in half second
     this.lost_hp_per_update = this.lost_hp / 20;
     if (this.lost_hp_per_update < 1) this.lost_hp_per_update = 1;
+
+    if (this.liveTime < 10) this.liveTime = 10; // extend the life for 10 seconds
   }
 
   takeCollisionDamage(obj, damage) {
@@ -102,7 +110,10 @@ class Booster extends ObjectClass {
       this.collisionCooldown = Constants.PLAYER_COLLISION_COOLDOWN;
 
       this.lastHitBy = obj;
+
+      if (this.liveTime < 10) this.liveTime = 10; // extend the life for 10 seconds
     } 
+
   }
 
   serializeForUpdate() {

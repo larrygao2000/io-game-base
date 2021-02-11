@@ -12,9 +12,16 @@ module.exports = Object.freeze({
   COLLISION_DAMAGE: 50,
   PLAYER_COLLISION_COOLDOWN: 0.9,
 
-  B_TRI_RADIUS: 15,
-  B_TRI_MAX_HP: 1000,
-  B_TRI_RARE: 10,
+  BOOSTER_NUM_TYPES:  2,
+  BOOSTER_RADIUS:     [15,  15,  ],
+  BOOSTER_MAX_HP:     [1000,2500,],
+  BOOSTER_TTL:        [300, 600,  ],
+  BOOSTER_MAXCAPTURE: [2,   2,  ],
+  BOOSTER_RARE:       [10,  25,  ],
+  BOOSTER_MULTIPLIER: {
+	      SPEED:  [2, 1,],
+              HP:     [1, 2,],
+           },
 
   SCORE_BULLET_HIT: 10,
   SCORE_KILL: 100,

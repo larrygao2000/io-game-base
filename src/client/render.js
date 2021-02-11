@@ -8,7 +8,7 @@ import { initKeymap } from "./input";
 
 const Constants = require('../shared/constants');
 
-const { PLAYER_RADIUS, PLAYER_MAX_HP, BULLET_RADIUS, MAP_SIZE, MAP_GRID_SIZE, SMAP_SIZE, CLIENT_UPDATE_PER_SECOND, B_TRI_RADIUS } = Constants;
+const { PLAYER_RADIUS, BULLET_RADIUS, MAP_SIZE, MAP_GRID_SIZE, SMAP_SIZE, CLIENT_UPDATE_PER_SECOND, BOOSTER_RADIUS, BOOSTER_MAX_HP } = Constants;
 
 // Get the canvas graphics context
 const canvas = document.getElementById('game-canvas');
@@ -209,10 +209,11 @@ function renderPlayer(color, me, player) {
   );
 
   context.fillStyle = 'red';
+  const redBarL = PLAYER_RADIUS * 2 * (1 - player.hp / player.hp_max);
   context.fillRect(
-    canvasX - PLAYER_RADIUS + PLAYER_RADIUS * 2 * player.hp / PLAYER_MAX_HP,
+    canvasX + PLAYER_RADIUS - redBarL,
     canvasY + PLAYER_RADIUS + 8,
-    PLAYER_RADIUS * 2 * (1 - player.hp / PLAYER_MAX_HP),
+    redBarL,
     2,
   );
 
@@ -225,22 +226,30 @@ function renderPlayer(color, me, player) {
 }
 
 function renderBooster(color, me, booster) {
-  const { x, y, direction, hp } = booster;
+  const { x, y, direction, hp, level } = booster;
   const canvasX = canvas.width / 2 + x - me.x;
   const canvasY = canvas.height / 2 + y - me.y;
-  if (canvasX < -B_TRI_RADIUS || canvasY < -B_TRI_RADIUS || canvasX > canvas.width || canvasY > canvas.height) return;
+  if (canvasX < -BOOSTER_RADIUS[level] || canvasY < -BOOSTER_RADIUS[level] || canvasX > canvas.width || canvasY > canvas.height) return;
 
   context.save();
   context.translate(canvasX, canvasY);
   context.rotate(direction);  //  degree to angle in radians: angle = degree * Math.PI / 180;
 
-  const y2 = B_TRI_RADIUS * Math.sin(Math.PI / 6); // 30 degree
-  const x2 = B_TRI_RADIUS * Math.cos(Math.PI / 6);
-
   context.beginPath();
-  context.moveTo(0, -B_TRI_RADIUS);
-  context.lineTo(-x2, y2);
-  context.lineTo(x2, y2);
+  if (level == 0) {
+    const y2 = BOOSTER_RADIUS[level] * Math.sin(Math.PI / 6); // 30 degree
+    const x2 = BOOSTER_RADIUS[level] * Math.cos(Math.PI / 6);
+
+    context.moveTo(0, -BOOSTER_RADIUS[level]);
+    context.lineTo(-x2, y2);
+    context.lineTo(x2, y2);
+  } else if (level == 1) {
+    const d = BOOSTER_RADIUS[level] / 1.4142; // Math.sqrt(2);
+    context.moveTo(-d, -d);
+    context.lineTo(d, -d);
+    context.lineTo(d, d);
+    context.lineTo(-d, d);
+  }
   context.closePath();
   context.fillStyle = color;
   context.fill();
@@ -250,17 +259,18 @@ function renderBooster(color, me, booster) {
   // Draw health bar
   context.fillStyle = 'white';
   context.fillRect(
-    canvasX - B_TRI_RADIUS,
-    canvasY + B_TRI_RADIUS + 8,
-    B_TRI_RADIUS * 2,
+    canvasX - BOOSTER_RADIUS[level],
+    canvasY + BOOSTER_RADIUS[level] + 8,
+    BOOSTER_RADIUS[level] * 2,
     2,
   );
 
   context.fillStyle = 'red';
+  const redBarL = BOOSTER_RADIUS[level] * 2 * (1 - hp / BOOSTER_MAX_HP[level]);
   context.fillRect(
-    canvasX - B_TRI_RADIUS + B_TRI_RADIUS * 2 * hp / 1000,
-    canvasY + B_TRI_RADIUS + 8,
-    B_TRI_RADIUS * 2 * (1 - hp / 1000),
+    canvasX + BOOSTER_RADIUS[level] - redBarL,
+    canvasY + BOOSTER_RADIUS[level] + 8,
+    redBarL,
     2,
   );
 

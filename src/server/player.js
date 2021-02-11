@@ -58,8 +58,11 @@ class Player extends ObjectClass {
     super.remove();
     total_player_died ++;
 
-    if (total_player_died % 10 == 0) {
-      new Booster(Constants.MAP_SIZE * (0.1 + Math.random() * 0.8), Constants.MAP_SIZE * (0.1 + Math.random() * 0.8), 0);
+    for (let level = Constants.BOOSTER_NUM_TYPES - 1; level >= 0; level --) {
+      if (total_player_died % Constants.BOOSTER_RARE[level] == 0) {
+        new Booster(Constants.MAP_SIZE * (0.1 + Math.random() * 0.8), Constants.MAP_SIZE * (0.1 + Math.random() * 0.8), level);
+        break;
+      }
     }
   }
 
@@ -237,6 +240,7 @@ class Player extends ObjectClass {
       fireDirection: this.fireDirection,
       username: this.username,
       hp: this.hp,
+      hp_max: this.hp_max, 
       shieldTime: this.shieldTime,
       score: Math.round(this.score),
     };
