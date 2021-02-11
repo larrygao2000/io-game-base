@@ -50,8 +50,6 @@ class Player extends ObjectClass {
     this.canvasHeight = Constants.MAP_SIZE / 4;
     this.collisionCooldown = Constants.PLAYER_COLLISION_COOLDOWN;
     this.type = 20;
-
-    this.boosters = [];
   }
 
   remove() {

@@ -41,16 +41,19 @@ class Booster extends ObjectClass {
   }
 
   creditPlayer(player) {
-    if (!player.boosters[this.level]) {
-      player.boosters[this.level] = 0;
-    }
-    if (player.boosters[this.level] < Constants.BOOSTER_MAXCAPTURE[this.level]) {
+
+    if (Constants.BOOSTER_MULTIPLIER['SPEED'][this.level] != 1) {
       player.max_speed *= Constants.BOOSTER_MULTIPLIER['SPEED'][this.level];
-      if (Constants.BOOSTER_MULTIPLIER['HP'][this.level] != 1) {
-        player.hp_max *= Constants.BOOSTER_MULTIPLIER['HP'][this.level];
-        player.hp = player.hp_max;
+      if (player.max_speed > Constants.PLAYER_SPEED_CAP) {
+        player.max_speed = Constants.PLAYER_SPEED_CAP;
       }
     }
+
+    if (Constants.BOOSTER_MULTIPLIER['HP'][this.level] != 1) {
+      player.hp_max *= Constants.BOOSTER_MULTIPLIER['HP'][this.level];
+      player.hp = player.hp_max;
+    }
+
     player.boosters[this.level]++;
     player.score += (this.level + 1) * 100;
   }
