@@ -105,8 +105,8 @@ class Booster extends ObjectClass {
       if (obj.parent) {
         this.lastHitBy = obj.parent;
         // let smart bots locks on boosters and tries to capture it
-        if (obj.parent.isBot && ! obj.parent.lockPlayer && Math.random() < 0.5) {
-          obj.parent.lockPlayer = this;
+        if (obj.parent.isBot && ! obj.parent.lockTarget && Math.random() < 0.5) {
+          obj.parent.lockTarget = this;
         }
       }
 

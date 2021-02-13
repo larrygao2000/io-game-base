@@ -149,7 +149,9 @@ class Player extends ObjectClass {
     if (obj.parent) {
       obj.parent.onDealtDamage(this);
       if (this.isBot && ! obj.parent.isBot && Math.random() < 0.5) {
-        this.lockPlayer = obj.parent;
+        if ( !this.lockTarget || this.lockTarget.getType() != 20)
+          // not locked, or locked an object which is not a player
+          this.lockTarget = obj.parent;
       }
     }
 

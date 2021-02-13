@@ -26,22 +26,22 @@ class Robot {
   emit(event, context) {
     const d = (new Date()).getTime();
 
-    if (this.player.lockPlayer) {
-      if (!this.player.lockPlayer.isLive()) {
-        this.player.lockPlayer = null;
+    if (this.player.lockTarget) {
+      if (!this.player.lockTarget.isLive()) {
+        this.player.lockTarget = null;
         return;
       }
 
       if (Math.random() < 0.1) {
-        this.player.setFireDirection(Math.atan2(this.player.y - this.player.lockPlayer.y, this.player.lockPlayer.x - this.player.x));
+        this.player.setFireDirection(Math.atan2(this.player.y - this.player.lockTarget.y, this.player.lockTarget.x - this.player.x));
         if (!this.player.autofire) {
           // turn on auto fire
           this.player.toggle('e');
         }
-        if (this.player.distanceTo(this.player.lockPlayer) > this.player.radius * 20) {
+        if (this.player.distanceTo(this.player.lockTarget) > this.player.radius * 20) {
           // unlock
-          this.player.lockPlayer = null;
-        } else if (this.player.distanceTo(this.player.lockPlayer) > this.player.radius * 3) this.player.setMoveDirection(this.player.lockPlayer.desire_speed, this.player.lockPlayer.direction);
+          this.player.lockTarget = null;
+        } else if (this.player.distanceTo(this.player.lockTarget) > this.player.radius * 3) this.player.setMoveDirection(this.player.lockTarget.desire_speed, this.player.lockTarget.direction);
       }
       return;
     }
