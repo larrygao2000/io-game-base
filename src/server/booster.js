@@ -2,6 +2,8 @@ const shortid = require('shortid');
 const ObjectClass = require('./object');
 const Constants = require('../shared/constants');
 
+let total_score_boosters = 0;
+let total_special_boosters = 0;
 class Booster extends ObjectClass {
   constructor(x, y, level) {
     super(shortid(), x, y, 0, 0, Constants.BOOSTER_RADIUS[level]);
@@ -19,15 +21,28 @@ class Booster extends ObjectClass {
     this.liveTime = Constants.BOOSTER_TTL[level];
 
     this.collisionCooldown = Constants.PLAYER_COLLISION_COOLDOWN;
+
+    if (level > 9) {
+      total_score_boosters ++;
+      if (total_score_boosters > Constants.TOTAL_SCORE_BOOSTERS) {
+        this.liveTime = 300; // if there are too many of these boosters, let it live for 5 mins only.
+      }
+    } else {
+      total_special_boosters ++;
+      if (total_score_boosters > Constants.TOTAL_SPECIAL_BOOSTERS) {
+        this.liveTime = 300; // if there are too many of these boosters, let it live for 5 mins only.
+      }
+    }
   }
 
-  // Returns true if the bullet should be destroyed
   update(dt) {
     super.update(dt);
 
     this.liveTime -= dt;
 
     if (this.liveTime <= 0) {
+      if (this.level > 9) total_score_boosters --;
+                     else total_special_boosters --;
       this.remove();
       return;
     }
@@ -38,6 +53,8 @@ class Booster extends ObjectClass {
         this.creditPlayer(this.lastHitBy);
       }
 
+      if (this.level > 9) total_score_boosters --;
+                     else total_special_boosters --;
       this.remove();
       return;
     }
@@ -51,32 +68,25 @@ class Booster extends ObjectClass {
 
     if (player.max_speed_multi < Constants.BOOSTER_SPEED_CAP) {
       player.max_speed_multi += Constants.BOOSTER_MULTIPLIER['SPEED'][this.level];
-console.log("speed multi:" + player.max_speed_multi);
     }
 
     if (Constants.BOOSTER_MULTIPLIER['HP'][this.level] != 0) {
       player.hp_max_multi += Constants.BOOSTER_MULTIPLIER['HP'][this.level];
       player.hp_max = player.hp_max_base * player.hp_max_multi;
       player.hp = player.hp_max;
-console.log("hp multi:" + player.hp_max_multi + " max hp:" + player.hp_max);
     }
 
     if (Constants.BOOSTER_MULTIPLIER['HPRECOVERY'][this.level] != 0 && player.hp_recovery_multi < 60)
       player.hp_recovery_multi += Constants.BOOSTER_MULTIPLIER['HPRECOVERY'][this.level];
-console.log("hp recovery multi:" + player.hp_recovery_multi);
 
     player.bodydamage_multi += Constants.BOOSTER_MULTIPLIER['BDAMAGE'][this.level];
-console.log("hp body damage multi:" + player.bodydamage_multi);
    
     if (player.bullet_speed_multi < Constants.BOOSTER_SPEED_CAP)
       player.bullet_speed_multi += Constants.BOOSTER_MULTIPLIER['BTSPEED'][this.level];
-console.log("bullet speed multi:" + player.bullet_speed_multi);
 
     player.bullet_damage_multi += Constants.BOOSTER_MULTIPLIER['BTDAMAGE'][this.level];
-console.log("bullet damage multi:" + player.bullet_damage_multi);
 
     player.firefreq += Constants.BOOSTER_MULTIPLIER['BTFREQ'][this.level];
-console.log("bullet fire multi:" + player.firefreq);
 
     player.score += Constants.BOOSTER_MULTIPLIER['SCORE'][this.level];
   }

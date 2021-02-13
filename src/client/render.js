@@ -8,7 +8,7 @@ import { initKeymap } from "./input";
 
 const Constants = require('../shared/constants');
 
-const { PLAYER_RADIUS, BULLET_RADIUS, MAP_SIZE, MAP_GRID_SIZE, SMAP_SIZE, CLIENT_UPDATE_PER_SECOND, BOOSTER_RADIUS, BOOSTER_SIDES, BOOSTER_COLOR, BOOSTER_MAX_HP } = Constants;
+const { PLAYER_RADIUS, BULLET_RADIUS, MAP_SIZE, MAP_GRID_SIZE, SMAP_SIZE, CLIENT_UPDATE_PER_SECOND, BOOSTER_RADIUS, BOOSTER_SIDES, BOOSTER_NAMES, BOOSTER_COLOR, BOOSTER_MAX_HP } = Constants;
 
 // Get the canvas graphics context
 const canvas = document.getElementById('game-canvas');
@@ -203,7 +203,7 @@ function renderPlayer(color, me, player) {
   context.fillStyle = 'white';
   context.fillRect(
     canvasX - PLAYER_RADIUS,
-    canvasY + PLAYER_RADIUS + 8,
+    canvasY + PLAYER_RADIUS + 11,
     PLAYER_RADIUS * 2,
     2,
   );
@@ -212,7 +212,7 @@ function renderPlayer(color, me, player) {
   const redBarL = PLAYER_RADIUS * 2 * (1 - player.hp / player.hp_max);
   context.fillRect(
     canvasX + PLAYER_RADIUS - redBarL,
-    canvasY + PLAYER_RADIUS + 8,
+    canvasY + PLAYER_RADIUS + 11,
     redBarL,
     2,
   );
@@ -220,30 +220,41 @@ function renderPlayer(color, me, player) {
   // write the player's name
   context.font = "10px Arial";
   context.fillStyle = 'black';
-  context.fillText(username,canvasX - PLAYER_RADIUS,canvasY + PLAYER_RADIUS + 20);
-  context.fillText(Math.round(player.hp), canvasX - PLAYER_RADIUS,canvasY + PLAYER_RADIUS + 2);
-  context.fillText(player.score, canvasX - PLAYER_RADIUS,canvasY - PLAYER_RADIUS - 12);
+  context.fillText(username,canvasX - PLAYER_RADIUS,canvasY + PLAYER_RADIUS + 24);
+  context.fillText(Math.round(player.hp), canvasX - PLAYER_RADIUS,canvasY + PLAYER_RADIUS + 10);
+  context.fillText(player.score, canvasX - PLAYER_RADIUS,canvasY - PLAYER_RADIUS);
 }
 
 function renderBooster(me, booster) {
   const { x, y, direction, hp, level } = booster;
   const canvasX = canvas.width / 2 + x - me.x;
   const canvasY = canvas.height / 2 + y - me.y;
-  if (canvasX < -BOOSTER_RADIUS[level] || canvasY < -BOOSTER_RADIUS[level] || canvasX > canvas.width || canvasY > canvas.height) return;
+  const r = BOOSTER_RADIUS[level];
+  if (canvasX < -r || canvasY < -r || canvasX > canvas.width || canvasY > canvas.height) return;
 
   context.save();
   context.translate(canvasX, canvasY);
   context.rotate(direction);  //  degree to angle in radians: angle = degree * Math.PI / 180;
 
+
   context.beginPath();
-
   const sides = BOOSTER_SIDES[level];
-  const angle = 2 * Math.PI / sides;
-  context.moveTo(BOOSTER_RADIUS[level], 0);
-  for (let i = 1; i < sides; i++) {
-    context.lineTo(BOOSTER_RADIUS[level] * Math.cos(angle * i), -BOOSTER_RADIUS[level] * Math.sin(angle * i));
+  if (sides >= 3) {
+    const angle = 2 * Math.PI / sides;
+    context.moveTo(r, 0);
+    for (let i = 1; i < sides; i++) {
+      context.lineTo(r * Math.cos(angle * i), -r * Math.sin(angle * i));
+    }
+  } else if (sides == 0) { // circle
+    context.arc(0, 0, r, 0, 2 * Math.PI);
+  } else if (sides == 1) { // Ti shape
+    context.rect(-r * 0.8, -r * 0.6, r * 1.6, r * 1.2);
+  } else if (sides == 2) { // diamond
+    context.moveTo(0, -r);
+    context.lineTo(r * 2 / 3, 0);
+    context.lineTo(0, r);
+    context.lineTo(-r * 2 / 3, 0);
   }
-
   context.closePath();
   context.fillStyle = BOOSTER_COLOR[level];
   context.fill();
@@ -253,24 +264,25 @@ function renderBooster(me, booster) {
   // Draw health bar
   context.fillStyle = 'white';
   context.fillRect(
-    canvasX - BOOSTER_RADIUS[level],
-    canvasY + BOOSTER_RADIUS[level] + 8,
-    BOOSTER_RADIUS[level] * 2,
+    canvasX - r,
+    canvasY + r + 11,
+    r * 2,
     2,
   );
 
   context.fillStyle = 'red';
-  const redBarL = BOOSTER_RADIUS[level] * 2 * (1 - hp / BOOSTER_MAX_HP[level]);
+  const redBarL = r * 2 * (1 - hp / BOOSTER_MAX_HP[level]);
   context.fillRect(
-    canvasX + BOOSTER_RADIUS[level] - redBarL,
-    canvasY + BOOSTER_RADIUS[level] + 8,
+    canvasX + r - redBarL,
+    canvasY + r + 11,
     redBarL,
     2,
   );
 
   context.font = "10px Arial";
   context.fillStyle = 'black';
-  context.fillText(Math.round(hp), canvasX - BOOSTER_RADIUS[level], canvasY + BOOSTER_RADIUS[level] + 2);
+  context.fillText(BOOSTER_NAMES[level],canvasX - r,canvasY - r);
+  context.fillText(Math.round(hp), canvasX - r, canvasY + r + 10);
 }
 
 function renderBullet(color, me, bullet) {

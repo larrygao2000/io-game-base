@@ -19,7 +19,6 @@ class Bullet extends ObjectClass {
     this.damage = Constants.BULLET_DAMAGE * damage_multi;
   }
 
-  // Returns true if the bullet should be destroyed
   update(dt) {
     super.update(dt);
     // The bullet will be removed after 5 seconds

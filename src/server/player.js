@@ -62,7 +62,9 @@ class Player extends ObjectClass {
     total_player_died ++;
 
     for (let level = Constants.BOOSTER_NUM_TYPES - 1; level >= 0; level --) {
-      if (total_player_died % Constants.BOOSTER_RARE[level] == 0) {
+      if (Constants.BOOSTER_RARE[level] == 0) {
+        new Booster(Constants.MAP_SIZE * (0.1 + Math.random() * 0.8), Constants.MAP_SIZE * (0.1 + Math.random() * 0.8), level);
+      } else if (total_player_died % Constants.BOOSTER_RARE[level] == 0) {
         new Booster(Constants.MAP_SIZE * (0.1 + Math.random() * 0.8), Constants.MAP_SIZE * (0.1 + Math.random() * 0.8), level);
         break;
       }
@@ -85,7 +87,6 @@ class Player extends ObjectClass {
     CollisionMap.addObject(this);
   }
 
-  // Returns a newly created bullet, or null.
   update(dt) {
 
     super.update(dt);
