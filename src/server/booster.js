@@ -44,6 +44,7 @@ class Booster extends ObjectClass {
       if (this.level > 9) total_score_boosters --;
                      else total_special_boosters --;
       this.remove();
+      this.hp = 0;
       return;
     }
 
@@ -101,7 +102,13 @@ class Booster extends ObjectClass {
 
       this.takeBulletDamage(obj);
 
-      this.lastHitBy = obj.parent;
+      if (obj.parent) {
+        this.lastHitBy = obj.parent;
+        // let smart bots locks on boosters and tries to capture it
+        if (obj.parent.isBot && ! obj.parent.lockPlayer && Math.random() < 0.5) {
+          obj.parent.lockPlayer = this;
+        }
+      }
 
       return 0b01;
     }

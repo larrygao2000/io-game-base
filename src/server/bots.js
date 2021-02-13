@@ -27,6 +27,11 @@ class Robot {
     const d = (new Date()).getTime();
 
     if (this.player.lockPlayer) {
+      if (!this.player.lockPlayer.isLive()) {
+        this.player.lockPlayer = null;
+        return;
+      }
+
       if (Math.random() < 0.1) {
         this.player.setFireDirection(Math.atan2(this.player.y - this.player.lockPlayer.y, this.player.lockPlayer.x - this.player.x));
         if (!this.player.autofire) {

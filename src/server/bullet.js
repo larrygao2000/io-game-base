@@ -33,6 +33,7 @@ class Bullet extends ObjectClass {
     }
 
     if (this.liveTime < 0 || this.x < 0 || this.x > Constants.MAP_SIZE || this.y < 0 || this.y > Constants.MAP_SIZE) {
+      this.hp = 0;
       this.remove();
     }
   }

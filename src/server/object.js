@@ -39,6 +39,11 @@ class Object {
     CollisionMap.addObject(this);
   }
 
+
+  isLive() {
+    return this.hp > 0;
+  }
+
   getType() {
     return this.type;
   }
