@@ -51,8 +51,7 @@ class Game {
     this.addPlayer(bot, bot.username);
     bot.player = this.players[bot.id];
     this.players[bot.id].isBot = true;
-    this.players[bot.id].autofire = true;
-//    this.players[bot.id].fireCooldown *= 4;
+    this.players[bot.id].openFire('on');
     this.players[bot.id].canvasWidth = bot.canvasWidth;
     this.players[bot.id].canvasHeight = bot.canvasHeight;
   }
