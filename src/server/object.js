@@ -110,20 +110,27 @@ class Object {
     if (dist < 0) return false;
 
     // bounce the objects back
-    if (this.x != obj.x || this.y != obj.y) {
-      const dir = Math.atan2(obj.y - this.y, this.x - obj.x);
-      const x = (dist + 1) * Math.cos(dir) / 2;
-      const y = (dist + 1) * Math.sin(dir) / 2;
-
-      // this is called from applyCollision which depends on collision map
-      // so we just set to new position -- collision mapX/mapY will be updated in next update(dt) call
-
-      this.x = Math.max(0, Math.min(Constants.MAP_SIZE, this.x + x));
-      this.y = Math.max(0, Math.min(Constants.MAP_SIZE, this.y - y));
-
-      obj.x = Math.max(0, Math.min(Constants.MAP_SIZE, obj.x - x));
-      obj.y = Math.max(0, Math.min(Constants.MAP_SIZE, obj.y + y));
+    if (this.x == obj.x && this.y == obj.y) {
+      let mx = 1 - Math.round(Math.random() * 100) % 3;
+      let my = 1 - Math.round(Math.random() * 100) % 3;
+      this.x = Math.max(0, Math.min(Constants.MAP_SIZE, this.x + mx));
+      this.y = Math.max(0, Math.min(Constants.MAP_SIZE, this.y + my));
+      return true;
     }
+
+    const dir = Math.atan2(obj.y - this.y, this.x - obj.x);
+    const x = (dist + 1) * Math.cos(dir) / 2;
+    const y = (dist + 1) * Math.sin(dir) / 2;
+
+    // this is called from applyCollision which depends on collision map
+    // so we just set to new position -- collision mapX/mapY will be updated in next update(dt) call
+
+    this.x = Math.max(0, Math.min(Constants.MAP_SIZE, this.x + x));
+    this.y = Math.max(0, Math.min(Constants.MAP_SIZE, this.y - y));
+
+    obj.x = Math.max(0, Math.min(Constants.MAP_SIZE, obj.x - x));
+    obj.y = Math.max(0, Math.min(Constants.MAP_SIZE, obj.y + y));
+
     return true;
   }
   
