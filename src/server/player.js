@@ -50,7 +50,6 @@ class Player extends ObjectClass {
     this.shieldTime = 5; // Player will be shielded damage for 5 seconds
     this.canvasWidth = Constants.MAP_SIZE / 4;
     this.canvasHeight = Constants.MAP_SIZE / 4;
-    this.collisionCooldown = Constants.PLAYER_COLLISION_COOLDOWN;
     this.type = 20;
 
     this.bullet_speed_multi = 1;
@@ -109,8 +108,6 @@ class Player extends ObjectClass {
       new Bullet(this, this.x, this.y, this.fireDirection, this.bullet_speed_multi, this.bullet_damage_multi);
     }
 
-    if (this.collisionCooldown > 0) this.collisionCooldown -= dt;
-
     if (this.hp <= 0 && this.lastHitBy && this.lastHitBy.onDealtKill) {
       // this player is killed by lastHitBy
       this.lastHitBy.onDealtKill(this);
@@ -128,7 +125,7 @@ class Player extends ObjectClass {
 
       // player PK
 
-      const collisiondamage = Math.min(this.hp, Math.min(obj.hp, Constants.COLLISION_DAMAGE));
+      const collisiondamage = Constants.COLLISION_DAMAGE * this.dt;
       if (this.group != obj.group) {
         // only take damage if they are not in the same group
         this.takeCollisionDamage(obj, collisiondamage * obj.bodydamage_multi);
@@ -222,17 +219,14 @@ class Player extends ObjectClass {
   }
 
   takeCollisionDamage(obj, damage) {
-    if (this.collisionCooldown < 0) {
-      if ((this.shieldTime < 0) && (!this.immortal)) {
-	this.lost_hp += damage;
+    if ((this.shieldTime < 0) && (!this.immortal)) {
+      this.lost_hp += damage;
 
-        // we do 40 updates per second, so this will allow the HP removed in half second
-        this.lost_hp_per_update = this.lost_hp / 20;
-        if (this.lost_hp_per_update < 1) this.lost_hp_per_update = 1;
+      // we do 40 updates per second, so this will allow the HP removed in half second
+      this.lost_hp_per_update = this.lost_hp / 20;
+      if (this.lost_hp_per_update < 1) this.lost_hp_per_update = 1;
 
-        this.lastHitBy = obj;
-      }
-      this.collisionCooldown = Constants.PLAYER_COLLISION_COOLDOWN;
+      this.lastHitBy = obj;
     }
   }
 

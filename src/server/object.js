@@ -36,6 +36,8 @@ class Object {
 
     this.hp_recovery_multi = 1;
 
+    this.dt = 0;
+
     CollisionMap.addObject(this);
   }
 
@@ -49,6 +51,8 @@ class Object {
   }
 
   update(dt) {
+
+    this.dt = dt; // to be used in collision2
 
     if (this.pre_v > 0) {
       this.x += dt * this.pre_v * Math.cos(this.pre_dir);
@@ -107,7 +111,11 @@ class Object {
   collision_bounceback(obj) {
 
     const dist = this.radius + obj.radius - this.distanceTo(obj);
-    if (dist < 0) return false;
+    if (dist < 0) return false; // no collision
+
+    if (dist < 1e-8) {
+      return true; // collision but just next to each other, no need to bounce
+    }
 
     // bounce the objects back
     if (this.x == obj.x && this.y == obj.y) {
@@ -119,8 +127,8 @@ class Object {
     }
 
     const dir = Math.atan2(obj.y - this.y, this.x - obj.x);
-    const x = (dist + 1) * Math.cos(dir) / 2;
-    const y = (dist + 1) * Math.sin(dir) / 2;
+    const x = (dist + 0.1) * Math.cos(dir) / 2;
+    const y = (dist + 0.1) * Math.sin(dir) / 2;
 
     // this is called from applyCollision which depends on collision map
     // so we just set to new position -- collision mapX/mapY will be updated in next update(dt) call

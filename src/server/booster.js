@@ -20,8 +20,6 @@ class Booster extends ObjectClass {
 
     this.liveTime = Constants.BOOSTER_TTL[level];
 
-    this.collisionCooldown = Constants.PLAYER_COLLISION_COOLDOWN;
-
     if (level > 9) {
       total_score_boosters ++;
       if (total_score_boosters > Constants.TOTAL_SCORE_BOOSTERS) {
@@ -62,7 +60,6 @@ class Booster extends ObjectClass {
 
     // update direction
     this.direction -= 3.1415926*2 / 200; // make a round in 20 seconds
-    if (this.collisionCooldown > 0) this.collisionCooldown -= dt;
   }
 
   creditPlayer(player) {
@@ -120,7 +117,7 @@ class Booster extends ObjectClass {
 
       if (!this.collision_bounceback(obj)) return 0;
 
-      const collisiondamage = Math.min(this.hp, Math.min(obj.hp, Constants.COLLISION_DAMAGE));
+      const collisiondamage = Constants.COLLISION_DAMAGE * this.dt;
       if (this.group != obj.group) {
         // only take damage if they are not in the same group
         this.takeCollisionDamage(obj, collisiondamage * obj.bodydamage_multi);
@@ -149,19 +146,15 @@ class Booster extends ObjectClass {
   }
 
   takeCollisionDamage(obj, damage) {
-    if (this.collisionCooldown < 0) {
-      this.lost_hp += damage;
+    this.lost_hp += damage;
 
-      // we do 40 updates per second, so this will allow the HP removed in half second
-      this.lost_hp_per_update = this.lost_hp / 20;
-      if (this.lost_hp_per_update < 1) this.lost_hp_per_update = 1;
-      this.collisionCooldown = Constants.PLAYER_COLLISION_COOLDOWN;
+    // we do 40 updates per second, so this will allow the HP removed in half second
+    this.lost_hp_per_update = this.lost_hp / 20;
+    if (this.lost_hp_per_update < 1) this.lost_hp_per_update = 1;
 
-      this.lastHitBy = obj;
+    this.lastHitBy = obj;
 
-      if (this.liveTime < 10) this.liveTime = 10; // extend the life for 10 seconds
-    } 
-
+    if (this.liveTime < 10) this.liveTime = 10; // extend the life for 10 seconds
   }
 
   serializeForUpdate() {

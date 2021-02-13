@@ -10,7 +10,6 @@ module.exports = Object.freeze({
   BULLET_DAMAGE: 10,
 
   COLLISION_DAMAGE: 50,
-  PLAYER_COLLISION_COOLDOWN: 0.9,
 
   BOOSTER_NUM_TYPES:  14,
   BOOSTER_NAMES:      ["Trigon", "Tetragon", "Pentagon", "Hexagon", "Heptagon","Octagon","Nonagon","Nonagon", "Decagon", "Circle",  "", "",  "", "",],
